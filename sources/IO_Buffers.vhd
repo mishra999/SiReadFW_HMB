@@ -31,13 +31,13 @@ use UNISIM.VComponents.all;
 
 entity IO_Buffers is
 	generic (
-		num_DC : integer := 3 --highest index in DC signal vectors: (# of DCs) - 1  
+		num_DC : integer := 0 --highest index in DC signal vectors: (# of DCs) - 1  
 		);
     Port ( RX_P : in  STD_LOGIC_VECTOR (num_DC downto 0);
            RX_N : in  STD_LOGIC_VECTOR (num_DC downto 0);
            TX : in  STD_LOGIC_VECTOR (num_DC downto 0);
            DATA_CLK : in STD_LOGIC;
-			  GLOB_EVNT : STD_LOGIC_VECTOR(3 downto 0);
+			  GLOB_EVNT : in STD_LOGIC_VECTOR(3 downto 0);
            SYNC : in  STD_LOGIC_VECTOR (num_DC downto 0); --Universal sync signal
            TX_P : out  STD_LOGIC_VECTOR (num_DC downto 0);
            TX_N : out  STD_LOGIC_VECTOR (num_DC downto 0);

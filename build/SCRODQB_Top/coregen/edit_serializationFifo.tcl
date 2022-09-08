@@ -22,7 +22,7 @@ proc findRtfPath { relativePath } {
 
 source [ findRtfPath "data/projnav/scripts/dpm_cgUtils.tcl" ]
 
-set result [ run_cg_edit "serializationFifo" xc6slx150t-3fgg676 VHDL ]
+set result [ run_cg_edit "serializationFifo" xc6slx150t-3fgg676 Verilog ]
 
 if { $result == 0 } {
    puts "Core Generator edit command completed successfully."

@@ -7,7 +7,7 @@
 -- Module Name:    SCRODQB_Top - Behavioral 
 -- Project Name:   HMB Tracking Plane Readout SCROD
 -- Target Devices: Spartan6 
--- Tool versions:  14.1
+-- Tool versions:  14.1  
 
 -- Description:    Barebones SCROD FW implementing QBLink to allow communcation with DC. 
 --                 Tests QBLink communcation between SCROD and a HODOSCOPE DC: 
@@ -28,21 +28,21 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use ieee.std_logic_unsigned.all;
 --use ieee.std_logic_arith.all;
-Library UNISIM;
-use UNISIM.vcomponents.all;
+-- Library UNISIM;
+-- use UNISIM.vcomponents.all;
 use work.all;
 use work.Eth1000BaseXPkg.all;
 use work.GigabitEthPkg.all;
 use work.BMD_definitions.all; --need to include BMD_definitions in addition to work.all
 use work.UtilityPkg.all;
-
+ 
 entity SCRODQB_Top is
 	generic (
 		REG_ADDR_BITS_G : integer := 16;
 		REG_DATA_BITS_G : integer := 16;
 		NUM_IP_G : integer := 2;
 		GATE_DELAY_G : time := 1 ns; --gate delay from ExampleProject
-		NUM_DCs : integer := 3 --(# of DCs) - 1, HODOSCOPE has 4 DCs, HMB has 8 DCs. 
+		NUM_DCs : integer := 0 --(# of DCs) - 1, HODOSCOPE has 4 DCs, HMB has 8 DCs. 
 		);
 	Port(		
 			--Will use 125 MHz clock output from s6 Ethernet module as system clock
@@ -71,12 +71,12 @@ entity SCRODQB_Top is
 			DC_RESET        : OUT slv(NUM_DCs DOWNTO 0);		-- Commented by Shivang on Oct 8, 2020
 			--Trigger to PMT SCRODs (mRICH)
 			GLOBAL_EVENT_P    : OUT slv(3 downto 0);
-			GLOBAL_EVENT_N    : OUT slv(3 downto 0);
+			GLOBAL_EVENT_N    : OUT slv(3 downto 0)
 
-			--External SCROD trigger
-			TRIG_IN			  : IN sl;
-			TRIG_OUT_P		  : OUT sl;
-			TRIG_OUT_N		  : OUT sl
+			-- --External SCROD trigger
+			-- TRIG_IN			  : IN sl;
+			-- TRIG_OUT_P		  : OUT sl;
+			-- TRIG_OUT_N		  : OUT sl
 	);
 end SCRODQB_Top;
 
@@ -90,10 +90,10 @@ architecture Behavioral of SCRODQB_Top is
    signal ethClk62     : sl;
    signal ethClk125    : sl; 
 
-   signal userRst     : sl;
+   signal userRst     : sl; 
 
    signal ethRxLinkSync  : sl;
-   signal ethAutoNegDone : sl;
+   signal ethAutoNegDone : sl; 
 
 	signal ethCoreMacAddr : MacAddrType := MAC_ADDR_DEFAULT_C;
    signal ethCoreIpAddr  : IpAddrType  := IP_ADDR_DEFAULT_C;
@@ -165,7 +165,7 @@ signal cmd_target_type : sl := '0';
 signal soft_trigger : std_logic :='1';
 --signal done : std_logic := '0';
 
-signal trigger_distributor : std_logic := '0';
+-- signal trigger_distributor : std_logic := '0';
 
 --attribute keep_hierarchy: boolean;
 --attribute keep_hierarchy of Behavioral: architecture is TRUE;
@@ -239,7 +239,7 @@ DC_reset_process : process(internal_data_clk) --unused for now 10/01
 begin 
 	IF rising_edge(internal_data_clk) THEN
 	   sync <= CtrlRegister(2)(NUM_DCs downto 0);
---	   QBrst <= CtrlRegister(2)(NUM_DCs downto 0);
+	   QBrst <= CtrlRegister(2)(NUM_DCs downto 0);
 	   DC_RESET <= CtrlRegister(2)(NUM_DCs downto 0);
 	END IF;
 end process;
@@ -257,14 +257,14 @@ end process;
 --);
 
 
-trigger_distributor <= TRIG_IN;
+-- trigger_distributor <= TRIG_IN;
 
-TRIG_BUFF : OBUFDS
-port map (
-	I  => trigger_distributor,
-	O  => TRIG_OUT_P,
-	OB => TRIG_OUT_N
-);
+-- TRIG_BUFF : OBUFDS
+-- port map (
+-- 	I  => trigger_distributor,
+-- 	O  => TRIG_OUT_P,
+-- 	OB => TRIG_OUT_N
+-- );
 
 --
 -----------------------------------------------------------------
@@ -348,7 +348,7 @@ U_S6EthTop : entity work.S6EthTop
       port map ( 
          -- User clock and reset
          usrClk      => ethClk125,
-			dataClk     => internal_data_clk,
+		dataClk     => internal_data_clk,
          usrRst      => userRst,
          -- Incoming data
          rxData      => userRxDataChannels(1),
@@ -362,14 +362,14 @@ U_S6EthTop : entity work.S6EthTop
          txDataReady => userTxDataReadys(1),
 			--DC Comm signals
 				--WILL ADD: QB_rst
-			serialClkLck => serialClkLocked,
-			trigLinkSync => trigLinkSynced,
-			DC_CMD 		 => dc_cmd,
-			QB_WrEn      => QBstart_wr,
-			QB_RdEn      => QBstart_rd,
-			DC_RESP		 => DC_data,
-			DC_RESP_VALID => dc_dataValid,
-			EVNT_FLAG => evntFlag,
+		serialClkLck => serialClkLocked,
+		trigLinkSync => trigLinkSynced,
+		DC_CMD 		 => dc_cmd,
+		QB_WrEn      => QBstart_wr,
+		QB_RdEn      => QBstart_rd,
+		DC_RESP		 => DC_data,
+		DC_RESP_VALID => dc_dataValid,
+		EVNT_FLAG => evntFlag,
          -- Register interfaces
          regAddr     => regAddr,
          regWrData   => regWrData,
@@ -378,7 +378,7 @@ U_S6EthTop : entity work.S6EthTop
          regOp       => regOp,
          regAck      => regAck,
 	--		ldQBLink => cmd_target_type,
-			cmd_int_state => CommandIntState 
+		cmd_int_state => CommandIntState 
       );
 		
  SCROD_Ctrl_Reg: process(ethClk125,regReq,userRst,regOp) begin
@@ -403,7 +403,7 @@ U_S6EthTop : entity work.S6EthTop
 ------------------DC Interface: featuring QBLink-----------------------------
 --------------------------------- -------------------------------------------
 DC_communication : entity work.DC_Comm
-generic map(num_DC => 3)
+generic map(num_DC => 0)
 port map (
 	DATA_CLK => internal_data_clk,
    RX => rx_dc,
@@ -413,11 +413,11 @@ port map (
 	RESP_REQ => QBstart_rd,
 	DC_RESPONSE => DC_data,
 	RESP_VALID => dc_dataValid, 
-	TrigLogicRst => reset, 
+	-- TrigLogicRst => reset, 
 	QB_RST => QBrst,
 	SERIAL_CLK_LCK => serialClkLocked,
 	TRIG_LINK_SYNC => trigLinkSynced,
-	EVENT_TRIG => evntFlag,
+	-- EVENT_TRIG => evntFlag,
 	sync => sync
 	);
 

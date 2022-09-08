@@ -13,7 +13,7 @@
 --              the number of daughtercards (minus 1).
 --
 -- Dependencies: 
---
+--   
 -- Revision: 
 -- Revision 0.01 - File Created
 -- Additional Comments: 
@@ -33,13 +33,13 @@ use ieee.std_logic_unsigned.all;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 --Hello
-entity DC_Comm is
-	Generic ( num_DC : integer := 3); --highest index in DC signal vectors: (# of DCs) - 1  
+entity DC_Comm is 
+	Generic ( num_DC : integer := 0); --highest index in DC signal vectors: (# of DCs) - 1  
     Port ( DATA_CLK : in  sl;
            RX : in  slv(num_DC downto 0);
            TX : out  slv(num_DC downto 0);
            DC_CMD : in  slv (31 downto 0); 
-           CMD_VALID : in  slv( num_DC downto 0);
+           CMD_VALID : in  slv( num_DC downto 0); 
            RESP_REQ : in slv(num_DC downto 0);
 			  DC_RESPONSE : out  slv(31 downto 0); 
 			 	--to be added: WAVE_WD : out slv(31 downto 0);
@@ -48,14 +48,14 @@ entity DC_Comm is
 				--            and TrigValid
            RESP_VALID : out  slv(num_DC downto 0);
 			  QB_RST : in slv(num_DC downto 0) := (others => '0');
-			  TrigLogicRst : in sl;
+			--   TrigLogicRst : in sl; --me
 			  SERIAL_CLK_LCK : out slv(num_DC downto 0);
 			  TRIG_LINK_SYNC : out slv(num_DC downto 0);
-			  Event_Trig : out sl; --global event trigger 
+			--   Event_Trig : out sl; --global event trigger --me
 			  sync : in slv(num_DC downto 0)
 			  );
 end DC_Comm;
-
+ 
 architecture Behaviorial of DC_Comm is
 
 signal tx_dc : slv(num_DC downto 0):= (others => '0');
@@ -65,115 +65,126 @@ signal rd_req : slv(num_DC downto 0):= (others => '0');
 signal dc_data : Word32Array(num_DC downto 0);
 signal trgLinkSync :slv(num_DC downto 0):= (others => '0');
 signal serialClkLck : slv(num_DC downto 0):= (others => '0');
-signal TrigFlag : slv(num_DC downto 0) := (others => '0');
-signal DC_sel : slv(num_DC downto 0) := (others => '0');
-signal evnt_trig : sl := '0';
+-- signal TrigFlag : slv(num_DC downto 0) := (others => '0'); --me
+-- signal DC_sel : slv(num_DC downto 0) := (others => '0'); --me
+-- signal evnt_trig : sl := '0'; --me
 signal i_sync : slv(num_DC downto 0) := (others => '0');
-
+   
 begin
 TX <= tx_dc;
 rx_dc <= RX;
-RESP_VALID <= dc_dataValid; 
+
 rd_req <= RESP_REQ;  
 TRIG_LINK_SYNC <= trgLinkSync;
 SERIAL_CLK_LCK <= serialClkLck;
-Event_trig <= evnt_trig;
+-- Event_trig <= evnt_trig;
 i_sync <= sync;
 
-
-
-DC_respMUX : Process(DC_sel,evnt_trig,dc_data, DATA_CLK)
-	variable count : integer := 0;
-begin
---  IF evnt_trig = '1' THEN
---		DC_sel <= "1111";
---  ELSE
-		DC_sel <= rd_req;
---  END IF;
   
-  IF rising_edge(DATA_CLK) THEN
-  	count := count +1;
-  ELSIF count > 4 THEN
-		count := 0;
-  END if;
-	
-	case DC_sel is
-		when "0001" =>
+
+DC_resp : Process(	DATA_CLK) --DC_sel,evnt_trig
+	-- variable count : integer := 0;
+begin
+	IF rising_edge(DATA_CLK) THEN
+		RESP_VALID <= dc_dataValid; 
+		if rd_req(0)= '1' then
 			DC_RESPONSE <= dc_data(0);
-		when "0010" =>
-			DC_RESPONSE <= dc_data(1);
-		when "0100" =>
-			DC_RESPONSE <= dc_data(2);
-		when "1000" =>
-			DC_RESPONSE <= dc_data(3);
-		when "1111" =>
-			case count is
-				when 1 =>
-					DC_RESPONSE <= dc_data(0);
-				when 2 =>
-					DC_RESPONSE <= dc_data(1);
-				when 3 =>
-					DC_RESPONSE <= dc_data(2);
-				when 4 =>
-					DC_RESPONSE <= dc_data(3);
-				when others =>
-					DC_RESPONSE <= (others => '0');
-				end case;
-		when others =>
-			DC_RESPONSE <= (others => '0');
-		end case;
+		end if;
+	end if;
+end process; 
 
+-- DC_respMUX : Process(DC_sel,evnt_trig,dc_data, DATA_CLK)
+-- 	variable count : integer := 0;
+-- begin
+-- --  IF evnt_trig = '1' THEN
+-- --		DC_sel <= "1111";
+-- --  ELSE
+-- 		DC_sel <= rd_req;
+-- --  END IF;
+  
+--   IF rising_edge(DATA_CLK) THEN
+--   	count := count +1;
+--   ELSIF count > 4 THEN
+-- 		count := 0;
+--   END if;
 	
-end process;
+-- 	case DC_sel is
+-- 		when "0001" =>
+-- 			DC_RESPONSE <= dc_data(0);
+-- 		when "0010" =>
+-- 			DC_RESPONSE <= dc_data(1);
+-- 		when "0100" =>
+-- 			DC_RESPONSE <= dc_data(2);
+-- 		when "1000" =>
+-- 			DC_RESPONSE <= dc_data(3);
+-- 		when "1111" =>
+-- 			case count is
+-- 				when 1 =>
+-- 					DC_RESPONSE <= dc_data(0);
+-- 				when 2 =>
+-- 					DC_RESPONSE <= dc_data(1);
+-- 				when 3 =>
+-- 					DC_RESPONSE <= dc_data(2);
+-- 				when 4 =>
+-- 					DC_RESPONSE <= dc_data(3);
+-- 				when others =>
+-- 					DC_RESPONSE <= (others => '0');
+-- 				end case;
+-- 		when others =>
+-- 			DC_RESPONSE <= (others => '0');
+-- 		end case;
+ 
+	
+-- end process;
 
-Gen_QBLink : FOR I in num_DC downto 0 GENERATE 
+-- Gen_QBLink : FOR I in num_DC downto 0 GENERATE 
 DC_Interface : entity work.QBLink                                                     
 PORT MAP( 
 			 sstClk => DATA_CLK,
-			 rst => QB_RST(I),
-			 rawSerialOut => tx_dc(I),
-			 rawSerialIn => rx_dc(I),
+			 rst => QB_RST(0), --(I),
+			 rawSerialOut => tx_dc(0), --(I),
+			 rawSerialIn => rx_dc(0), --(I),
 			 localWordIn => DC_CMD, 
-			 localWordInValid => CMD_VALID(I),
-			 localWordOut => dc_data(I),
-			 localWordOutValid => dc_dataValid(I),
-			 localWordOutReq => rd_req(I),
-			 trgLinkSynced => trgLinkSync(I),
-			 serialClkLocked => serialClkLck(I),
-			 sync => i_sync(I)
+			 localWordInValid => CMD_VALID(0) ,--(I),
+			 localWordOut => dc_data(0), --(I),
+			 localWordOutValid => dc_dataValid(0), --(I),
+			 localWordOutReq => rd_req(0), --(I),
+			 trgLinkSynced => trgLinkSync(0), --(I),
+			 serialClkLocked => serialClkLck(0), --(I),
+			 sync => i_sync(0) --(I)
 			 );
-end GENERATE Gen_QBLink;
+-- end GENERATE Gen_QBLink;
 
 
-TriggerLogic : process(dc_data, TrigFlag)
-begin
-	FOR  L in num_DC DOWNTO 0 loop 
---		IF dc_data(L)(7 downto 5) = "111" THEN --If output word contains trigger data marker
---			TrigFlag(L) <= '1'; --DC L is triggered.
---		ELSE
---			TrigFlag(L) <= '0'; --DC L is not triggered.
---		END IF;
---	END LOOP;
---	
-		IF dc_data(0)(31 downto 29) = "100" THEN --If output word contains trigger data marker
-			TrigFlag(0) <= '1'; --DC L is triggered.
-		ELSE
-			TrigFlag(0) <= '0'; --DC L is not triggered.
-		END IF;
-	END LOOP;
+-- TriggerLogic : process(dc_data, TrigFlag)
+-- begin
+-- 	FOR  L in num_DC DOWNTO 0 loop 
+-- --		IF dc_data(L)(7 downto 5) = "111" THEN --If output word contains trigger data marker
+-- --			TrigFlag(L) <= '1'; --DC L is triggered.
+-- --		ELSE
+-- --			TrigFlag(L) <= '0'; --DC L is not triggered.
+-- --		END IF;
+-- --	END LOOP;
+-- --	
+-- 		IF dc_data(0)(31 downto 29) = "100" THEN --If output word contains trigger data marker
+-- 			TrigFlag(0) <= '1'; --DC L is triggered.
+-- 		ELSE
+-- 			TrigFlag(0) <= '0'; --DC L is not triggered.
+-- 		END IF;
+-- 	END LOOP;
 	
---	IF TrigFlag = "1111" THEN -- AND trigger flags (hardcoded for HODOSCOPE)
---		evnt_trig <= '1';
-	IF TrigFlag(0) = '1' THEN -- AND trigger flags (hardcoded for HODOSCOPE)
-		evnt_trig <= '1';
+-- --	IF TrigFlag = "1111" THEN -- AND trigger flags (hardcoded for HODOSCOPE)
+-- --		evnt_trig <= '1';
+-- 	IF TrigFlag(0) = '1' THEN -- AND trigger flags (hardcoded for HODOSCOPE)
+-- 		evnt_trig <= '1';
 		
-	ELSIF TrigLogicRst = '1' THEN
-		evnt_trig <= '0';
+-- 	ELSIF TrigLogicRst = '1' THEN
+-- 		evnt_trig <= '0';
 	
-	ELSE
-		evnt_trig <= '0';
-	END IF;
-end process;
+-- 	ELSE
+-- 		evnt_trig <= '0';
+-- 	END IF;
+-- end process;
 
 end Behaviorial;
 

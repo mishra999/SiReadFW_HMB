@@ -9,10 +9,10 @@
 -- Target Device:  
 -- Tool versions:  
 -- Description:   
--- 
+--     
 -- VHDL Test Bench Created by ISE for module: CommandInterpreter
--- 
--- Dependencies:
+--    
+-- Dependencies: 
 -- 
 -- Revision:
 -- Revision 0.01 - File Created
@@ -53,18 +53,18 @@ ARCHITECTURE behavior OF CommandInterpreterPing_TB IS
          rxData : IN  std_logic_vector(31 downto 0);
          rxDataValid : IN  std_logic;
          rxDataLast : IN  std_logic;
-         rxDataReady : OUT  std_logic;
+         rxDataReady : INOUT  std_logic;
          txData : OUT  std_logic_vector(31 downto 0);
          txDataValid : OUT  std_logic;
          txDataLast : OUT  std_logic;
          txDataReady : IN  std_logic;
-         serialClkLck : IN  std_logic_vector(3 downto 0);
-         trigLinkSync : IN  std_logic_vector(3 downto 0);
+         serialClkLck : IN  std_logic_vector(0 downto 0);
+         trigLinkSync : IN  std_logic_vector(0 downto 0);
          DC_CMD : OUT  std_logic_vector(31 downto 0);
-         QB_WrEn : OUT  std_logic_vector(3 downto 0);
-         QB_RdEn : OUT  std_logic_vector(3 downto 0);
+         QB_WrEn : OUT  std_logic_vector(0 downto 0);
+         QB_RdEn : INOUT  std_logic_vector(0 downto 0);
          DC_RESP : IN  std_logic_vector(31 downto 0);
-         DC_RESP_VALID : IN  std_logic_vector(3 downto 0);
+         DC_RESP_VALID : IN  std_logic_vector(0 downto 0);
          EVNT_FLAG : IN  std_logic;
          regAddr : OUT  std_logic_vector(15 downto 0);
          regWrData : OUT  std_logic_vector(15 downto 0);
@@ -112,10 +112,10 @@ ARCHITECTURE behavior OF CommandInterpreterPing_TB IS
    signal rxDataValid : std_logic := '0';
    signal rxDataLast : std_logic := '0';
    signal txDataReady : std_logic := '0';
-   signal serialClkLck : std_logic_vector(3 downto 0) := (others => '0');
-   signal trigLinkSync : std_logic_vector(3 downto 0) := (others => '0');
+   signal serialClkLck : std_logic_vector(0 downto 0) := (others => '0');
+   signal trigLinkSync : std_logic_vector(0 downto 0) := (others => '0');
    signal DC_RESP : std_logic_vector(31 downto 0) := (others => '0');
-   signal DC_RESP_VALID : std_logic_vector(3 downto 0) := (others => '0');
+   signal DC_RESP_VALID : std_logic_vector(0 downto 0) := (others => '0');
    signal EVNT_FLAG : std_logic := '0';
    signal regRdData : std_logic_vector(15 downto 0) := (others => '0');
    signal regAck : std_logic := '0';
@@ -126,8 +126,8 @@ ARCHITECTURE behavior OF CommandInterpreterPing_TB IS
    signal txDataValid : std_logic;
    signal txDataLast : std_logic;
    signal DC_CMD : std_logic_vector(31 downto 0);
-   signal QB_WrEn : std_logic_vector(3 downto 0);
-   signal QB_RdEn : std_logic_vector(3 downto 0);
+   signal QB_WrEn : std_logic_vector(0 downto 0);
+   signal QB_RdEn : std_logic_vector(0 downto 0);
    signal regAddr : std_logic_vector(15 downto 0);
    signal regWrData : std_logic_vector(15 downto 0);
    signal regReq : std_logic;
@@ -199,9 +199,9 @@ BEGIN
       -- hold reset state for 100 ns.
       wait for 100 ns;
 	
---serialClkLck(0) <= '1';
---trigLinkSync(0) <= '1';
--- DC_RESP(15 downto 0) <= x"0002";
+      serialClkLck(0) <= '1';
+      trigLinkSync(0) <= '1';
+      -- DC_RESP(15 downto 0) <= x"0002";
       wait for usrClk_period*10;
 	
 		rxDataValid <= '1';
@@ -226,22 +226,26 @@ BEGIN
 		rxData <= WORD_COMMAND_ID_C;
 		wait for usrClk_period;
 		--WORD_PING_C | WORD_WRITE_C | WORD_READ_C depending upon type of command
-		rxData <= WORD_PING_C;  
+		rxData <= WORD_WRITE_C;  --WORD_PING_C
 --- only for Reg Wr/Rd command--	
 -- first 4 MSBs are Reg Value, last 4 [LSBs] are Reg Addr
 -- For Reg Read command, Reg Value [4 MSBs] = 0000 by default, give address in last 4.
---	wait for usrClk_period;
---		rxData <= x"00010002";         
+      wait for usrClk_period;
+      rxData <= x"00010002";         
 -----------------------------		
 		wait for usrClk_period;
 	-- Command Checksum: for ping x"70696e79" -- for write (Reg 2 value 1: 00010002)=>x"726A7479"	
 	-- for Read (Reg 2: 00000002) => x"72656178"
-		rxData <= x"70696e79";        
+		rxData <= x"726A7479";        
 		txDataReady <= '1';
 		
 		wait for usrClk_period;
 
 		rxData <= PACKET_CHECKSUM;
+
+      wait for usrClk_period*10;
+      -- DC_RESP_VALID <="1";
+      DC_RESP(15 downto 0) <= x"0002";
       wait;
    end process;
 
