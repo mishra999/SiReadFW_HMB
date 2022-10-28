@@ -227,16 +227,12 @@ utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path QBLtxFIFO.ng
 utilities_xmdf::xmdfSetData $instance FileSet $fcount type ngc
 incr fcount
 
-utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path QBLtxFIFO.sym
-utilities_xmdf::xmdfSetData $instance FileSet $fcount type symbol
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path QBLtxFIFO.vhd
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type vhdl
 incr fcount
 
-utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path QBLtxFIFO.v
-utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
-incr fcount
-
-utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path QBLtxFIFO.veo
-utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog_template
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path QBLtxFIFO.vho
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type vhdl_template
 incr fcount
 
 utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path QBLtxFIFO.xco

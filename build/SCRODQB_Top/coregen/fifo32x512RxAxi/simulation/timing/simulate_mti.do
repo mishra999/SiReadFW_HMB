@@ -48,8 +48,8 @@
 vlib work 
 vmap work work 
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlog -work work ../../implement/results/routed.v
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vcom  -work work ../../implement/results/routed.vhd
 
 echo "Compiling Test Bench Files"
 vcom -work work ../fifo32x512RxAxi_pkg.vhd  
@@ -60,7 +60,7 @@ vcom -work work ../fifo32x512RxAxi_pctrl.vhd
 vcom -work work ../fifo32x512RxAxi_synth.vhd 
 vcom -work work ../fifo32x512RxAxi_tb.vhd
 
-vsim  -t ps -voptargs="+acc" +transport_int_delays -L simprims_ver glbl -sdfmax /fifo32x512RxAxi_tb/fifo32x512RxAxi_synth_inst/fifo32x512RxAxi_inst=../../implement/results/routed.sdf work.fifo32x512RxAxi_tb
+vsim  -t ps -voptargs="+acc" +transport_int_delays -L simprim -sdfmax /fifo32x512RxAxi_tb/fifo32x512RxAxi_synth_inst/fifo32x512RxAxi_inst=../../implement/results/routed.sdf work.fifo32x512RxAxi_tb
 
 add log -r /*
 do wave_mti.do

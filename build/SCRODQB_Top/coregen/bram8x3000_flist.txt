@@ -47,9 +47,8 @@ bram8x3000/simulation/timing/wave_ncsim.sv
 bram8x3000.asy
 bram8x3000.gise
 bram8x3000.ngc
-bram8x3000.sym
-bram8x3000.v
-bram8x3000.veo
+bram8x3000.vhd
+bram8x3000.vho
 bram8x3000.xco
 bram8x3000.xise
 bram8x3000_flist.txt

@@ -47,13 +47,12 @@ REM  THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 REM  PART OF THIS FILE AT ALL TIMES.
 REM  
 
-vlogcomp -work work %XILINX%\verilog\src\glbl.v
-vlogcomp -work work ..\..\..\clockgen_bytelink.v
-vlogcomp -work work ..\..\example_design\clockgen_bytelink_exdes.v
-vlogcomp -work work ..\clockgen_bytelink_tb.v
+vhpcomp -work work ..\..\..\clockgen_bytelink.vhd
+vhpcomp -work work ..\..\example_design\clockgen_bytelink_exdes.vhd
+vhpcomp -work work ..\clockgen_bytelink_tb.vhd
 
 REM compile the project
-fuse work.clockgen_bytelink_tb work.glbl -L unisims_ver -o clockgen_bytelink_isim.exe
+fuse work.clockgen_bytelink_tb  -L unisim -o clockgen_bytelink_isim.exe
 
 REM run the simulation script
 .\clockgen_bytelink_isim.exe -gui -tclbatch simcmds.tcl

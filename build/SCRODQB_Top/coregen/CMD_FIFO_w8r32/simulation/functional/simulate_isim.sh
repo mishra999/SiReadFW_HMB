@@ -46,9 +46,9 @@
 # PART OF THIS FILE AT ALL TIMES.
 #--------------------------------------------------------------------------------
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlogcomp -work work ../../../CMD_FIFO_w8r32.v
-vhpcomp -work work ../../example_design/CMD_FIFO_w8r32_exdes.vhd
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhpcomp  -work work ../../../CMD_FIFO_w8r32.vhd
+vhpcomp  -work work ../../example_design/CMD_FIFO_w8r32_exdes.vhd
 
 echo "Compiling Test Bench Files"
 vhpcomp -work work ../CMD_FIFO_w8r32_pkg.vhd
@@ -59,7 +59,6 @@ vhpcomp -work work ../CMD_FIFO_w8r32_pctrl.vhd
 vhpcomp -work work ../CMD_FIFO_w8r32_synth.vhd 
 vhpcomp -work work ../CMD_FIFO_w8r32_tb.vhd
 
-vlogcomp -work work $XILINX/verilog/src/glbl.v
-fuse work.CMD_FIFO_w8r32_tb work.glbl -L xilinxcorelib_ver -L unisims_ver -o CMD_FIFO_w8r32_tb.exe
+fuse work.CMD_FIFO_w8r32_tb -L xilinxcorelib -L unisim -o CMD_FIFO_w8r32_tb.exe
 
 ./CMD_FIFO_w8r32_tb.exe -gui -tclbatch ./wave_isim.tcl

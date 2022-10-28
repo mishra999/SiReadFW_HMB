@@ -52,11 +52,10 @@
 mkdir work
 
 # compile all of the files
-ncvlog -work work ${XILINX}/verilog/src/glbl.v
-ncvlog -work work ../../../clk_Div.v
-ncvlog -work work ../../example_design/clk_Div_exdes.v
-ncvlog -work work ../clk_Div_tb.v
+ncvhdl -v93 -work work ../../../clk_Div.vhd
+ncvhdl -v93 -work work ../../example_design/clk_Div_exdes.vhd
+ncvhdl -v93 -work work ../clk_Div_tb.vhd
 
 # elaborate and run the simulation
-ncelab -work work -access +wc work.clk_Div_tb work.glbl
+ncelab -work work -access +wc work.clk_Div_tb 
 ncsim -input  "@database -open -shm nc; probe -create -database nc -all -depth all; probe dut.counter; run 50000ns; exit" work.clk_Div_tb

@@ -48,8 +48,8 @@ CMD_FIFO_w1r8/simulation/timing/wave_ncsim.sv
 CMD_FIFO_w1r8.asy
 CMD_FIFO_w1r8.gise
 CMD_FIFO_w1r8.ngc
-CMD_FIFO_w1r8.v
-CMD_FIFO_w1r8.veo
+CMD_FIFO_w1r8.vhd
+CMD_FIFO_w1r8.vho
 CMD_FIFO_w1r8.xco
 CMD_FIFO_w1r8.xise
 CMD_FIFO_w1r8_flist.txt

@@ -4,8 +4,8 @@ icon_pro.asy
 icon_pro.gise
 icon_pro.ngc
 icon_pro.ucf
-icon_pro.v
-icon_pro.veo
+icon_pro.vhd
+icon_pro.vho
 icon_pro.xco
 icon_pro.xise
 icon_pro_flist.txt

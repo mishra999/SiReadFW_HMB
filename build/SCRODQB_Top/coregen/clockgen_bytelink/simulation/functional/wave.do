@@ -47,7 +47,6 @@
 # PART OF THIS FILE AT ALL TIMES.
 # 
 
-add wave -noupdate -format Literal -radix ascii /clockgen_bytelink_tb/test_phase
 add wave -noupdate -divider {Input clocks}
 add wave -noupdate -format Logic /clockgen_bytelink_tb/CLK_IN1
 add wave -noupdate -divider {Output clocks}

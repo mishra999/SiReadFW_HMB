@@ -52,10 +52,9 @@ set work work
 vlib work
 
 # compile all of the files
-vlog -work work $XILINX/verilog/src/glbl.v
-vlog -work work ../../../BMD_DC_CLK_GEN.v
-vlog -work work ../../example_design/BMD_DC_CLK_GEN_exdes.v
-vlog -work work ../BMD_DC_CLK_GEN_tb.v
+vcom -work work ../../../BMD_DC_CLK_GEN.vhd
+vcom -work work ../../example_design/BMD_DC_CLK_GEN_exdes.vhd
+vcom -work work ../BMD_DC_CLK_GEN_tb.vhd
 
 # run the simulation
-vsim -c -t ps -voptargs="+acc" -L secureip -L unisims_ver work.BMD_DC_CLK_GEN_tb work.glbl
+vsim -c -t ps -voptargs="+acc" -L secureip -L unisim work.BMD_DC_CLK_GEN_tb 

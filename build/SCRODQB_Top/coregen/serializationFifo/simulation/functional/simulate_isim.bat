@@ -44,9 +44,9 @@
 :: THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 :: PART OF THIS FILE AT ALL TIMES.
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlogcomp -work work ..\\..\\..\\serializationFifo.v
-vhpcomp -work work ..\\..\\example_design\\serializationFifo_exdes.vhd
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhpcomp  -work work ..\\..\\..\\serializationFifo.vhd
+vhpcomp  -work work ..\\..\\example_design\\serializationFifo_exdes.vhd
 
 echo "Compiling Test Bench Files"
 vhpcomp -work work ..\\serializationFifo_pkg.vhd
@@ -57,7 +57,6 @@ vhpcomp -work work ..\\serializationFifo_pctrl.vhd
 vhpcomp -work work ..\\serializationFifo_synth.vhd 
 vhpcomp -work work ..\\serializationFifo_tb.vhd
 
-vlogcomp -work work $XILINX\\verilog\\src\\glbl.v
-fuse work.serializationFifo_tb work.glbl -L xilinxcorelib_ver -L unisims_ver -o serializationFifo_tb.exe
+fuse work.serializationFifo_tb -L xilinxcorelib -L unisim -o serializationFifo_tb.exe
 
 .\\serializationFifo_tb.exe -gui -tclbatch .\\wave_isim.tcl

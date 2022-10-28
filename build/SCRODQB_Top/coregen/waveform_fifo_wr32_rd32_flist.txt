@@ -5,8 +5,8 @@ fifo_generator_v8_2_readme.txt
 waveform_fifo_wr32_rd32.asy
 waveform_fifo_wr32_rd32.gise
 waveform_fifo_wr32_rd32.ngc
-waveform_fifo_wr32_rd32.v
-waveform_fifo_wr32_rd32.veo
+waveform_fifo_wr32_rd32.vhd
+waveform_fifo_wr32_rd32.vho
 waveform_fifo_wr32_rd32.xco
 waveform_fifo_wr32_rd32.xise
 waveform_fifo_wr32_rd32_flist.txt

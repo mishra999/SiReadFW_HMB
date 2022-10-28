@@ -44,8 +44,8 @@
 :: THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 :: PART OF THIS FILE AT ALL TIMES.
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlogcomp -work work ..\\..\\implement\\results\\routed.v
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhpcomp  -work work ..\\..\\implement\\results\\routed.vhd
 
 echo "Compiling Test Bench Files"
 vhpcomp -work work ..\\fifo32x512RxAxi_pkg.vhd
@@ -56,6 +56,6 @@ vhpcomp -work work ..\\fifo32x512RxAxi_pctrl.vhd
 vhpcomp -work work ..\\fifo32x512RxAxi_synth.vhd 
 vhpcomp -work work ..\\fifo32x512RxAxi_tb.vhd
 
-fuse work.fifo32x512RxAxi_tb work.glbl -L simprims_ver -o fifo32x512RxAxi_tb.exe
+fuse work.fifo32x512RxAxi_tb -L simprim  -o fifo32x512RxAxi_tb.exe
 
 .\\fifo32x512RxAxi_tb.exe -sdfmax /fifo32x512RxAxi_tb/fifo32x512RxAxi_synth_inst/fifo32x512RxAxi_inst=..\\..\\implement\\results\\routed.sdf -gui -tclbatch .\\wave_isim.tcl

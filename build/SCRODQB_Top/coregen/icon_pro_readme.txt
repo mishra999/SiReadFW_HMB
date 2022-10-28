@@ -1,5 +1,5 @@
 The following files were generated for 'icon_pro' in directory
-/home/ise/xilinx/github/SiRead_FW/build/SCRODQB_Top/coregen/
+/home/ise/git/SiRead_FW1/build/SCRODQB_Top/coregen/
 
 XCO file generator:
    Generate an XCO file for compatibility with legacy flows.
@@ -11,13 +11,13 @@ Creates an implementation netlist:
 
    * icon_pro.ngc
    * icon_pro.ucf
-   * icon_pro.v
-   * icon_pro.veo
+   * icon_pro.vhd
+   * icon_pro.vho
 
 Creates an HDL instantiation template:
    Creates an HDL instantiation template for the IP.
 
-   * icon_pro.veo
+   * icon_pro.vho
 
 IP Symbol Generator:
    Generate an IP symbol based on the current project options'.

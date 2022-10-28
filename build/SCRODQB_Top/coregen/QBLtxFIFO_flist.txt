@@ -48,9 +48,8 @@ QBLtxFIFO/simulation/timing/wave_ncsim.sv
 QBLtxFIFO.asy
 QBLtxFIFO.gise
 QBLtxFIFO.ngc
-QBLtxFIFO.sym
-QBLtxFIFO.v
-QBLtxFIFO.veo
+QBLtxFIFO.vhd
+QBLtxFIFO.vho
 QBLtxFIFO.xco
 QBLtxFIFO.xise
 QBLtxFIFO_flist.txt

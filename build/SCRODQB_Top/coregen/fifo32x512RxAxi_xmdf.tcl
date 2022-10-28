@@ -227,16 +227,12 @@ utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path fifo32x512Rx
 utilities_xmdf::xmdfSetData $instance FileSet $fcount type ngc
 incr fcount
 
-utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path fifo32x512RxAxi.sym
-utilities_xmdf::xmdfSetData $instance FileSet $fcount type symbol
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path fifo32x512RxAxi.vhd
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type vhdl
 incr fcount
 
-utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path fifo32x512RxAxi.v
-utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
-incr fcount
-
-utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path fifo32x512RxAxi.veo
-utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog_template
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path fifo32x512RxAxi.vho
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type vhdl_template
 incr fcount
 
 utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path fifo32x512RxAxi.xco

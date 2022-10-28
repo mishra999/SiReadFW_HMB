@@ -47,7 +47,6 @@
 # PART OF THIS FILE AT ALL TIMES.
 # 
 
-add wave -noupdate -format Literal -radix ascii /BMD_DC_CLK_GEN_tb/test_phase
 add wave -noupdate -divider {Input clocks}
 add wave -noupdate -format Logic /BMD_DC_CLK_GEN_tb/CLK_IN1
 add wave -noupdate -divider {Output clocks}

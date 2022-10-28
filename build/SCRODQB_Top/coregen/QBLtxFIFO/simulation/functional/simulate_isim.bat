@@ -44,9 +44,9 @@
 :: THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 :: PART OF THIS FILE AT ALL TIMES.
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlogcomp -work work ..\\..\\..\\QBLtxFIFO.v
-vhpcomp -work work ..\\..\\example_design\\QBLtxFIFO_exdes.vhd
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhpcomp  -work work ..\\..\\..\\QBLtxFIFO.vhd
+vhpcomp  -work work ..\\..\\example_design\\QBLtxFIFO_exdes.vhd
 
 echo "Compiling Test Bench Files"
 vhpcomp -work work ..\\QBLtxFIFO_pkg.vhd
@@ -57,7 +57,6 @@ vhpcomp -work work ..\\QBLtxFIFO_pctrl.vhd
 vhpcomp -work work ..\\QBLtxFIFO_synth.vhd 
 vhpcomp -work work ..\\QBLtxFIFO_tb.vhd
 
-vlogcomp -work work $XILINX\\verilog\\src\\glbl.v
-fuse work.QBLtxFIFO_tb work.glbl -L xilinxcorelib_ver -L unisims_ver -o QBLtxFIFO_tb.exe
+fuse work.QBLtxFIFO_tb -L xilinxcorelib -L unisim -o QBLtxFIFO_tb.exe
 
 .\\QBLtxFIFO_tb.exe -gui -tclbatch .\\wave_isim.tcl

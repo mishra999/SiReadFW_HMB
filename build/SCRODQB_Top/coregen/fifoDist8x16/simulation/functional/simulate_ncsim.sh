@@ -47,9 +47,9 @@
 #--------------------------------------------------------------------------------
 mkdir work
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-ncvlog -work work ../../../fifoDist8x16.v
-ncvhdl -v93 -work work ../../example_design/fifoDist8x16_exdes.vhd
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+ncvhdl -v93  -work work ../../../fifoDist8x16.vhd
+ncvhdl -v93  -work work ../../example_design/fifoDist8x16_exdes.vhd
 
 echo "Compiling Test Bench Files"
 ncvhdl -v93 -work work ../fifoDist8x16_pkg.vhd
@@ -61,8 +61,7 @@ ncvhdl -v93 -work work ../fifoDist8x16_synth.vhd
 ncvhdl -v93 -work work ../fifoDist8x16_tb.vhd
 
 echo "Elaborating Design"
-ncvlog -work work $XILINX/verilog/src/glbl.v
-ncelab -access +rwc glbl work.fifoDist8x16_tb
+ncelab -access +rwc work.fifoDist8x16_tb
 
 echo "Simulating Design"
 ncsim -gui -input @"simvision -input wave_ncsim.sv" work.fifoDist8x16_tb

@@ -47,8 +47,8 @@
 #--------------------------------------------------------------------------------
 rm -rf simv* csrc DVEfiles AN.DB
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlogan +v2k  ../../implement/results/routed.v
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhdlan  ../../implement/results/routed.vhd
 
 echo "Compiling Test Bench Files"
 vhdlan   ../serializationFifo_pkg.vhd
@@ -60,7 +60,7 @@ vhdlan   ../serializationFifo_synth.vhd
 vhdlan   ../serializationFifo_tb.vhd
 
 echo "Elaborating Design"
-vcs -time_res 1ps +neg_tchk -sdf max:/serializationFifo_tb/serializationFifo_synth_inst/serializationFifo_inst:../../implement/results/routed.sdf +vcs+lic+wait -debug serializationFifo_tb glbl
+vcs -time_res 1ps +neg_tchk +vcs+lic+wait -debug serializationFifo_tb
 
 echo "Simulating Design"
 ./simv -ucli -i ucli_commands.key

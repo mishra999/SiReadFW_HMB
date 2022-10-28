@@ -47,8 +47,8 @@
 #--------------------------------------------------------------------------------
 rm -rf simv* csrc DVEfiles AN.DB
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlogan +v2k  ../../implement/results/routed.v
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhdlan  ../../implement/results/routed.vhd
 
 echo "Compiling Test Bench Files"
 vhdlan   ../QBLtxFIFO_pkg.vhd
@@ -60,7 +60,7 @@ vhdlan   ../QBLtxFIFO_synth.vhd
 vhdlan   ../QBLtxFIFO_tb.vhd
 
 echo "Elaborating Design"
-vcs -time_res 1ps +neg_tchk -sdf max:/QBLtxFIFO_tb/QBLtxFIFO_synth_inst/QBLtxFIFO_inst:../../implement/results/routed.sdf +vcs+lic+wait -debug QBLtxFIFO_tb glbl
+vcs -time_res 1ps +neg_tchk +vcs+lic+wait -debug QBLtxFIFO_tb
 
 echo "Simulating Design"
 ./simv -ucli -i ucli_commands.key

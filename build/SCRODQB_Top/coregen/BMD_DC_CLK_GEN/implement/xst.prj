@@ -1,2 +1,2 @@
-verilog work ../../BMD_DC_CLK_GEN.v
-verilog work ../example_design/BMD_DC_CLK_GEN_exdes.v
+vhdl work ../../BMD_DC_CLK_GEN.vhd
+vhdl work ../example_design/BMD_DC_CLK_GEN_exdes.vhd

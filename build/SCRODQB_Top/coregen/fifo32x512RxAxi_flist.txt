@@ -49,9 +49,8 @@ fifo32x512RxAxi/simulation/timing/wave_ncsim.sv
 fifo32x512RxAxi.asy
 fifo32x512RxAxi.gise
 fifo32x512RxAxi.ngc
-fifo32x512RxAxi.sym
-fifo32x512RxAxi.v
-fifo32x512RxAxi.veo
+fifo32x512RxAxi.vhd
+fifo32x512RxAxi.vho
 fifo32x512RxAxi.xco
 fifo32x512RxAxi.xise
 fifo32x512RxAxi_flist.txt

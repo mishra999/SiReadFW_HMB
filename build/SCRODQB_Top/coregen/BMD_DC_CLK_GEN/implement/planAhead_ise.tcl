@@ -58,8 +58,8 @@ set_property design_mode RTL [get_filesets sources_1]
 
 ## Source files
 #set verilogSources [glob $srcDir/*.v]
-import_files -fileset [get_filesets sources_1] -force -norecurse ../../example_design/BMD_DC_CLK_GEN_exdes.v
-import_files -fileset [get_filesets sources_1] -force -norecurse ../../../BMD_DC_CLK_GEN.v
+import_files -fileset [get_filesets sources_1] -force -norecurse ../../example_design/BMD_DC_CLK_GEN_exdes.vhd
+import_files -fileset [get_filesets sources_1] -force -norecurse ../../../BMD_DC_CLK_GEN.vhd
 
 
 #UCF file

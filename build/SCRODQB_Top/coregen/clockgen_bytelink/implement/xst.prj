@@ -1,2 +1,2 @@
-verilog work ../../clockgen_bytelink.v
-verilog work ../example_design/clockgen_bytelink_exdes.v
+vhdl work ../../clockgen_bytelink.vhd
+vhdl work ../example_design/clockgen_bytelink_exdes.vhd

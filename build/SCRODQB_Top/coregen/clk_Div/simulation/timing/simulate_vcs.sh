@@ -48,25 +48,23 @@
 # PART OF THIS FILE AT ALL TIMES.
 # 
 
+
 # remove old files
-rm -rf simv* csrc DVEfiles AN.DB
+rm -rf simv* csrc DVEfiles AN.DB 
 
 # compile all of the files
 # Note that -sverilog is not strictly required- You can
 #   remove the -sverilog if you change the type of the
 #   localparam for the periods in the testbench file to 
 #   [63:0] from time
-  vlogan -sverilog \
-           clk_Div_tb.v \
-           ../../implement/results/routed.v
+vhdlan -xlrm ../../implement/results/routed.vhd \
+      clk_Div_tb.vhd
 
-
-# prepare the simulation
-vcs -sdf max:clk_Div_exdes:../../implement/results/routed.sdf +v2k -y $XILINX/verilog/src/simprims \
-        +libext+.v -debug clk_Div_tb.v ../../implement/results/routed.v
+# prepare the simulation 
+vcs +vcs+lic+wait -xlrm -sdf max:clk_Div_exdes:../../implement/results/routed.sdf -debug clk_Div_tb.vhd ../../implement/results/routed.vhd
 
 # run the simulation
-./simv -ucli -i ucli_commands.key
+./simv -xlrm -ucli -i ucli_commands.key
 
 # launch the viewer
 #dve -vpd vcdplus.vpd -session vcs_session.tcl

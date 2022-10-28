@@ -48,12 +48,11 @@
 # 
 
 # create the project
-vlogcomp -work work ${XILINX}/verilog/src/glbl.v
-vlogcomp -work work ../../implement/results/routed.v
-vlogcomp -work work clockgen_bytelink_tb.v
+vhpcomp -work work ../../implement/results/routed.vhd
+vhpcomp -work work clockgen_bytelink_tb.vhd
 
 # compile the project
-fuse work.clockgen_bytelink_tb work.glbl -L secureip -L simprims_ver -o clockgen_bytelink_isim.exe
+fuse work.clockgen_bytelink_tb  -L secureip -L simprim -o clockgen_bytelink_isim.exe
 
 # run the simulation script
 ./clockgen_bytelink_isim.exe -tclbatch simcmds.tcl -sdfmax /clockgen_bytelink_tb/dut=../../implement/results/routed.sdf

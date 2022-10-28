@@ -49,8 +49,8 @@ fifoonly_adcfifo/simulation/timing/wave_ncsim.sv
 fifoonly_adcfifo.asy
 fifoonly_adcfifo.gise
 fifoonly_adcfifo.ngc
-fifoonly_adcfifo.v
-fifoonly_adcfifo.veo
+fifoonly_adcfifo.vhd
+fifoonly_adcfifo.vho
 fifoonly_adcfifo.xco
 fifoonly_adcfifo.xise
 fifoonly_adcfifo_flist.txt

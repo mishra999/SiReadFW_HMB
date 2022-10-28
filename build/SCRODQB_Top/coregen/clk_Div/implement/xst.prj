@@ -1,2 +1,2 @@
-verilog work ../../clk_Div.v
-verilog work ../example_design/clk_Div_exdes.v
+vhdl work ../../clk_Div.vhd
+vhdl work ../example_design/clk_Div_exdes.vhd

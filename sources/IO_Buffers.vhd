@@ -37,26 +37,26 @@ entity IO_Buffers is
            RX_N : in  STD_LOGIC_VECTOR (num_DC downto 0);
            TX : in  STD_LOGIC_VECTOR (num_DC downto 0);
            DATA_CLK : in STD_LOGIC;
-			  GLOB_EVNT : in STD_LOGIC_VECTOR(3 downto 0);
+			--   GLOB_EVNT : in STD_LOGIC_VECTOR(3 downto 0);  --by me
            SYNC : in  STD_LOGIC_VECTOR (num_DC downto 0); --Universal sync signal
            TX_P : out  STD_LOGIC_VECTOR (num_DC downto 0);
            TX_N : out  STD_LOGIC_VECTOR (num_DC downto 0);
-			  DC_CLK_P : out  STD_LOGIC_VECTOR (num_DC downto 0);
+		   DC_CLK_P : out  STD_LOGIC_VECTOR (num_DC downto 0);
            DC_CLK_N : out  STD_LOGIC_VECTOR (num_DC downto 0);
            RX : out  STD_LOGIC_VECTOR (num_DC downto 0);
            SYNC_P : out  STD_LOGIC_VECTOR (num_DC downto 0);
-           SYNC_N : out  STD_LOGIC_VECTOR (num_DC downto 0);
-			  GLOB_EVNT_P : out STD_LOGIC_VECTOR(3 downto 0);
-			  GLOB_EVNT_N : out STD_LOGIC_VECTOR(3 downto 0));
+           SYNC_N : out  STD_LOGIC_VECTOR (num_DC downto 0));
+			--   GLOB_EVNT_P : out STD_LOGIC_VECTOR(3 downto 0);
+			--   GLOB_EVNT_N : out STD_LOGIC_VECTOR(3 downto 0)); --by me
 end IO_Buffers;
 
 architecture Behavioral of IO_Buffers is
-signal dc_clk : STD_LOGIC_VECTOR(num_DC downto 0);
+signal dc_clk : STD_LOGIC_VECTOR(num_DC downto 0);  -- by me
 begin
 Gen_buffers : for I in num_DC downto 0 generate
 	RX_IBUF_inst : IBUFDS -- input buffer: serial data from DCs
 	generic map (
-	     DIFF_TERM    => TRUE, -- Differential Termination is not available on board
+	    --  DIFF_TERM    => TRUE, -- Differential Termination is not available on board
 	     IOSTANDARD => "LVDS_25" 
 	     )
 	port map (
@@ -79,7 +79,7 @@ Gen_buffers : for I in num_DC downto 0 generate
 		OB => SYNC_N(I),
 		I => SYNC(I));
 	
-DC_CLK_ODDR2 : ODDR2  --use ODDR2 with internal data clk to generate dc_clk
+DC_CLK_ODDR2 : ODDR2  --use ODDR2 with internal data clk to generate dc_clk , by me 82-104
    generic map(
       DDR_ALIGNMENT => "NONE", -- Sets output alignment to "NONE", "C0", "C1" 
       INIT => '0', -- Sets initial state of the Q output to '0' or '1'
@@ -97,22 +97,31 @@ DC_CLK_ODDR2 : ODDR2  --use ODDR2 with internal data clk to generate dc_clk
 
 
 DC_CLK_OBUFDS : OBUFDS --ODDR2 generated dc_clk buffered OBUFDS to drive output Clocks to DCs.
-generic map (IOSTANDARD => "LVDS_25")
+generic map (IOSTANDARD => "BLVDS_25")
 port map (
 		O => DC_CLK_P(I),
 		OB => DC_CLK_N(I),
 		I => dc_clk(I)); 
+
+
+-- DC_CLK_OBUFDS : OBUFDS --ODDR2 generated dc_clk buffered OBUFDS to drive output Clocks to DCs.
+-- generic map (IOSTANDARD => "LVDS_25")
+-- port map (
+-- 		O => DC_CLK_P(I),
+-- 		OB => DC_CLK_N(I),
+-- 		I => DATA_CLK); 
 	
 end generate Gen_buffers;
 
---HODOSCOPE Specific (verify)
-Gen_PMT_trig_buf : for L in 3 downto 0 generate
-		PMT_trig_OBUFDS : OBUFDS 
-		generic map (IOSTANDARD => "LVDS_25")
-		port map (
-			O  => GLOB_EVNT_P(L),    
-			OB => GLOB_EVNT_N(L),  
-			I  => GLOB_EVNT(L));
-end generate Gen_PMT_trig_buf;
+--HODOSCOPE Specific (verify) --by me
+-- Gen_PMT_trig_buf : for L in 3 downto 0 generate
+-- 		PMT_trig_OBUFDS : OBUFDS 
+-- 		generic map (IOSTANDARD => "LVDS_25")
+-- 		port map (
+-- 			O  => GLOB_EVNT_P(L),    
+-- 			OB => GLOB_EVNT_N(L),  
+-- 			I  => GLOB_EVNT(L));
+-- end generate Gen_PMT_trig_buf;
+
 end Behavioral;
 

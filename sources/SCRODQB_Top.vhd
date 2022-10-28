@@ -61,17 +61,17 @@ entity SCRODQB_Top is
 			--DC communication
 			RX_DC_P			 : IN slv(NUM_DCs downto 0);  --SERIAL INPUT FROM DC
 			RX_DC_N			 : IN slv(NUM_DCs  downto 0);  --SERIAL INPUT FROM DC
-			DC_CLK_P			 : OUT slv(NUM_DCs downto 0);  --25MHz clock to DC (fact check)--> {confirmed}
-			DC_CLK_N		    : OUT slv(NUM_DCs downto 0); 
+			DC_CLK_P			 : OUT sl;  --25MHz clock to DC (fact check)--> {confirmed} --by me
+			DC_CLK_N		    : OUT sl; --by me, no physical connection to DC; just QBlink
 			TX_DC_N         : OUT slv(NUM_DCs downto 0);  --Serial output to DC
-			TX_DC_P			 : OUT slv(NUM_DCs downto 0);--Serial output to DC 
+			TX_DC_P			 : OUT slv(NUM_DCs downto 0); --Serial output to DC 
 			SYNC_P			 : OUT slv(NUM_DCs downto 0); -- when '0' DC listens only, '1' DC reads back command
-			SYNC_N			 : OUT slv(NUM_DCs downto 0);
+			SYNC_N			 : OUT slv(NUM_DCs downto 0)
 
-			DC_RESET        : OUT slv(NUM_DCs DOWNTO 0);		-- Commented by Shivang on Oct 8, 2020
+			-- DC_RESET        : OUT slv(NUM_DCs DOWNTO 0)		-- Commented by Shivang on Oct 8, 2020
 			--Trigger to PMT SCRODs (mRICH)
-			GLOBAL_EVENT_P    : OUT slv(3 downto 0);
-			GLOBAL_EVENT_N    : OUT slv(3 downto 0)
+			-- GLOBAL_EVENT_P    : OUT slv(3 downto 0);
+			-- GLOBAL_EVENT_N    : OUT slv(3 downto 0) --by me,
 
 			-- --External SCROD trigger
 			-- TRIG_IN			  : IN sl;
@@ -79,7 +79,7 @@ entity SCRODQB_Top is
 			-- TRIG_OUT_N		  : OUT sl
 	);
 end SCRODQB_Top;
-
+ 
 architecture Behavioral of SCRODQB_Top is
 --PC communcation signals---
 	signal ethSync      : sl;
@@ -129,17 +129,17 @@ architecture Behavioral of SCRODQB_Top is
 	signal QBstart_wr : slv(NUM_DCs downto 0); --internal flag to start transmission 
 	signal QBstart_rd : slv(NUM_DCs downto 0); --internal flag to prepare for readback
 	signal reset : sl; -- reset SCROD processes
-	signal trigLinkSynced : slv(NUM_DCs downto 0); --QBLink status flag: trigger link synced between SCROD and DC 
-	signal serialClkLocked : slv(NUM_DCs downto 0); --QBlink status flag: SCROD and DC data clocks are synced (established before trigger link)
-	signal dc_cmd		 : slv(31 downto 0); --DC register command, input data to QBLink write-operation input FIFO
+	signal trigLinkSynced : slv(NUM_DCs downto 0):= (others => '0'); --QBLink status flag: trigger link synced between SCROD and DC 
+	signal serialClkLocked : slv(NUM_DCs downto 0):= (others => '0'); --QBlink status flag: SCROD and DC data clocks are synced (established before trigger link)
+	signal dc_cmd		 : slv(31 downto 0):= (others => '0'); --DC register command, input data to QBLink write-operation input FIFO
 	signal QBrst	: slv(NUM_DCs downto 0) := (others =>'0'); --QBLink reset 
 --	signal QBrst_test : slv(NUM_DCs downto 0) := (others => '0');
 	signal DC_data : slv(31 downto 0);
-	signal dc_dataValid : slv(NUM_DCs downto 0); -- QBLink output: readout valid flag 
-	signal tx_dc		 : slv(NUM_DCs downto 0); --transmitted serial data bit 
-	signal rx_dc		 : slv(NUM_DCs downto 0); --recieved serial data bit
+	signal dc_dataValid : slv(NUM_DCs downto 0):= (others => '0'); -- QBLink output: readout valid flag 
+	signal tx_dc		 : slv(NUM_DCs downto 0):= (others => '0'); --transmitted serial data bit 
+	signal rx_dc		 : slv(NUM_DCs downto 0):= (others => '0'); --recieved serial data bit
 	signal evntFlag :sl :='0';
-	signal global_event :slv(3 downto 0);
+	-- signal global_event :slv(3 downto 0);  --by me
 		--TYPE CommStateType IS (IDLE, START_WRITE, START_READ); --Communcation statetype
 		--signal CommState : CommStateType := IDLE; --communcation statemachine(SM) current state
 		--signal nxtState : CommStateType := IDLE; --communication SM next state
@@ -147,13 +147,16 @@ architecture Behavioral of SCRODQB_Top is
 		--signal nxt_CTRLState : slv(1 DOWNTO 0) := "00"; --(temp) communcation control SM next state
 --DCM clock stuff
 signal clkfx180 : sl;
-signal dcm_locked : sl;
+signal dcm_locked : sl:='0';
 signal progdone : sl;
 signal dcm_status : slv(7 downto 0);
 signal dcm_rst : sl := '0';
 signal internal_fpga_clk : sl; --fast clk 
 signal internal_data_clk : sl; -- QBLink timing clock
+-- signal internal_data_clk1 : sl; -- going no where
 signal Clk_to_DC : sl;
+signal Clk_to_QBLink : sl;
+-- signal internal_data_clk2 : sl;
 --signal qbl_fast_clk : sl;
 
 --signal been_reset : sl := '0';  -- Commented by Shivang on Oct 8, 2020
@@ -163,6 +166,9 @@ signal sync : slv(NUM_DCs downto 0) := (others =>'0'); -- synchronize timestamp 
 signal cmd_target_type : sl := '0';
 --for one-shot
 signal soft_trigger : std_logic :='1';
+-- signal sync_QBrst : slv(NUM_DCs downto 0) := (others =>'0');
+-- signal DC_RESET : slv(NUM_DCs downto 0) := (others =>'0');
+-- signal DC_sync : slv(NUM_DCs downto 0) := (others =>'0');
 --signal done : std_logic := '0';
 
 -- signal trigger_distributor : std_logic := '0';
@@ -226,21 +232,29 @@ CLOCK_FANOUT : entity work.clk_Div
     CLK_IN1 => ethClk125,
     -- Clock out ports
     CLK_OUT1 => internal_fpga_clk,
-    CLK_OUT2 => internal_data_clk,
-	 CLK_OUT3 => Clk_to_DC,
+    CLK_OUT2 => Clk_to_DC, --25 MHz
+	CLK_OUT3 => internal_data_clk,   --by me Clk_to_DC 9/13/2022 12.5MHz
+	CLK_OUT4 => Clk_to_QBLink,   
     -- Status and control signals
     RESET  => dcm_rst,
     LOCKED => dcm_locked);
 	 
-global_event <= (others => evntFlag);
+-- global_event <= (others => evntFlag); --by me
+
+-- clk_sync: process(internal_fpga_clk) begin
+-- if rising_edge(internal_fpga_clk) then
+-- 	internal_data_clk <= internal_data_clk2; 
+-- end if;
+-- end process;
 
 DC_reset_process : process(internal_data_clk) --unused for now 10/01
 ----variable counter : integer range 0 to 2 := 0;
 begin 
 	IF rising_edge(internal_data_clk) THEN
-	   sync <= CtrlRegister(2)(NUM_DCs downto 0);
+	   sync <= CtrlRegister(3)(NUM_DCs downto 0);
 	   QBrst <= CtrlRegister(2)(NUM_DCs downto 0);
-	   DC_RESET <= CtrlRegister(2)(NUM_DCs downto 0);
+	--    DC_sync <= CtrlRegister(5)(NUM_DCs downto 0);
+	--    DC_RESET <= CtrlRegister(4)(NUM_DCs downto 0); --by me
 	END IF;
 end process;
 
@@ -277,15 +291,15 @@ PORT MAP(
 	RX_P => RX_DC_P,
 	RX_N => RX_DC_N,
 	TX => tx_dc,
-	GLOB_EVNT => global_event,
+	-- GLOB_EVNT => global_event, --by me
 	SYNC => sync,   
 	TX_P => TX_DC_P,
 	TX_N => TX_DC_N,
-	DC_CLK_P => DC_CLK_P,
-	DC_CLK_N => DC_CLK_N,
- 	DATA_CLK => Clk_to_DC, -- internal_data_clk,  --jan 20:25 MHz clk to DC
-	GLOB_EVNT_P => GLOBAL_EVENT_P,
-	GLOB_EVNT_N => GLOBAL_EVENT_N,
+	DC_CLK_P(0) => DC_CLK_P, 
+	DC_CLK_N(0) => DC_CLK_N,
+ 	DATA_CLK => Clk_to_DC , -- internal_data_clk, Clk_to_DC  --jan 20:25 MHz clk to DC,  --Clk_to_DC removed by me 9/3/2022 
+	-- GLOB_EVNT_P => GLOBAL_EVENT_P,
+	-- GLOB_EVNT_N => GLOBAL_EVENT_N, --by me
 	RX => rx_dc,
 	SYNC_P => SYNC_P,
 	SYNC_N => SYNC_N
@@ -406,6 +420,7 @@ DC_communication : entity work.DC_Comm
 generic map(num_DC => 0)
 port map (
 	DATA_CLK => internal_data_clk,
+	sstX5Clk  => Clk_to_QBLink, 
    RX => rx_dc,
 	TX => tx_dc,
 	DC_CMD => dc_cmd,
@@ -418,7 +433,7 @@ port map (
 	SERIAL_CLK_LCK => serialClkLocked,
 	TRIG_LINK_SYNC => trigLinkSynced,
 	-- EVENT_TRIG => evntFlag,
-	sync => sync
+	sync => sync --sync_QBrst --sync, by me
 	);
 
 END Behavioral;  

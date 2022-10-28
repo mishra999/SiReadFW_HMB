@@ -20,8 +20,8 @@ entity DC_Comm_back is
     Port ( DATA_CLK : in  sl;
            RX : in  slv(num_DC downto 0);
            TX : out  slv(num_DC downto 0);
-        --    DC_RESPONSE : in  slv (31 downto 0); 
-        --    RES_VALID : in  slv( num_DC downto 0); 
+           DC_RESPONSE : in  slv (31 downto 0); 
+           RES_VALID : in  slv( num_DC downto 0); 
         --    RESP_REQ : in slv(num_DC downto 0);
 			--   CMD_DATA : out  slv(31 downto 0); 
 			 	--to be added: WAVE_WD : out slv(31 downto 0);
@@ -34,14 +34,18 @@ entity DC_Comm_back is
 			  SERIAL_CLK_LCK : out slv(num_DC downto 0);
 			  TRIG_LINK_SYNC : out slv(num_DC downto 0);
 			--   Event_Trig : out sl; --global event trigger --me
-			  sync : in slv(num_DC downto 0)
+			  sync : in slv(num_DC downto 0);
+              regAddr : out std_logic_vector(15 downto 0);
+              regWrData : out std_logic_vector(15 downto 0);
+              regReq    : out sl;
+              regOp     : out sl
 			  );
 end DC_Comm_back;
 
 architecture Behaviorial of DC_Comm_back is
 
-signal DC_RESPONSE : slv (31 downto 0):= (others => '0');
-signal RES_VALID : slv( num_DC downto 0):= (others => '0');
+signal DC_RESPONSE_i : slv (31 downto 0):= (others => '0');
+signal RES_VALID_i : slv( num_DC downto 0):= (others => '0');
 signal tx_dc_back : slv(num_DC downto 0):= (others => '0');
 signal rx_dc_back : slv(num_DC downto 0);
 signal dc_cmdValid : slv(num_DC downto 0):= (others => '0');
@@ -52,7 +56,7 @@ signal serialClkLck : slv(num_DC downto 0):= (others => '0');
 -- signal TrigFlag : slv(num_DC downto 0) := (others => '0'); --me
 -- signal DC_sel : slv(num_DC downto 0) := (others => '0'); --me
 -- signal evnt_trig : sl := '0'; --me
-signal CtrlRegister : GPR:= (others => x"9987");
+-- signal CtrlRegister : GPR:= (others => x"9987");
 signal i_sync : slv(num_DC downto 0) := (others => '0');
 
 type StateType     is (IDLE,DECODE_COMMAND,READ_ADDR_VALUE);  
@@ -64,7 +68,9 @@ type RegType is record
     write   : slv(1 downto 0);
     timeoutCnt  : slv(31 downto 0);
     regAddr  : slv(15 downto 0);
-    regData  : slv(15 downto 0);
+    regWrData  : slv(15 downto 0);
+    regReq    : sl;
+    regOp     : sl;
 
 end record RegType;  
 
@@ -75,11 +81,13 @@ constant REG_INIT_C : RegType := (
     write   => "00",
     timeoutCnt   => (others => '0'),
     regAddr   => (others => '0'),
-    regData  => (others => '0')
+    regReq     => '0',
+    regWrData  => (others => '0'),
+    regOp => '0'
 );
 
-constant N_GPR : integer := 20;--127;
-type GPR is array(N_GPR-1 downto 0) of std_logic_vector(15 downto 0);
+-- constant N_GPR : integer := 20;--127;
+-- type GPR is array(N_GPR-1 downto 0) of std_logic_vector(15 downto 0);
 
 signal r   : RegType := REG_INIT_C;
 signal rin : RegType;
@@ -90,6 +98,8 @@ constant WORD_WRITE_C     : slv(31 downto 0) := x"72697465";
 begin
 TX <= tx_dc_back;
 rx_dc_back <= RX;
+DC_RESPONSE_i <= DC_RESPONSE;
+RES_VALID_i <= RES_VALID;
 -- CMD_VALID <= dc_cmdValid; 
 -- CMD_DATA <= cmd_data1;
 -- rd_req <= RESP_REQ;  
@@ -121,8 +131,8 @@ PORT MAP(
 			 rst => QB_RST(0), --(I),
 			 rawSerialOut => tx_dc_back(0), --(I),
 			 rawSerialIn => rx_dc_back(0), --(I),
-			 localWordIn => DC_RESPONSE, 
-			 localWordInValid => RES_VALID(0) ,--(I),
+			 localWordIn => DC_RESPONSE_i, 
+			 localWordInValid => RES_VALID_i(0) ,--(I),
 			 localWordOut => cmd_data(0), --(I),
 			 localWordOutValid => dc_cmdValid(0), --(I),
 			 localWordOutReq => rd_req(0), --(I),
@@ -146,6 +156,9 @@ PORT MAP(
             v.rd_req := (others => '1');
             v.read := "00";
             v.write := "00";
+            v.regReq := '0';
+            v.regOp := '0';
+            v.regReq := '0';
             v.timeoutCnt  := (others => '0');
             if dc_cmdValid(0) = '1' then
                 v.rd_req(0) := '1';
@@ -172,14 +185,18 @@ PORT MAP(
                     v.regAddr := cmd_data(0)(15 downto 0);
                     v.rd_req(0) := '0';
                     v.read := "11";
+                    v.regReq := '1';
+                    v.regOp := '0';
                     v.timeoutCnt  := (others => '0');
                     v.state    := IDLE;
                     
                 elsif (v.write = "01") then
                     v.regAddr := cmd_data(0)(15 downto 0); 
-                    v.regData := cmd_data(0)(31 downto 16);
+                    v.regWrData := cmd_data(0)(31 downto 16);
                     v.rd_req(0) := '0';
                     v.write := "11";
+                    v.regOp := '1';
+                    v.regReq := '1';
                     v.timeoutCnt  := (others => '0');
                     v.state    := IDLE;
                     
@@ -191,7 +208,7 @@ PORT MAP(
 				v.state    := IDLE;
                 
             end if;
-      end case;
+      end case; 
 
     --   -- Reset logic
     --   if (rst = '1') then
@@ -200,9 +217,13 @@ PORT MAP(
 
       -- Assignment of combinatorial variable to signal
       rin <= v;
-
-      -- Outputs to ports
       rd_req <= r.rd_req;
+      -- Outputs to ports
+      
+      regAddr     <= r.regAddr;
+      regWrData   <= r.regWrData;
+      regReq      <= r.regReq;
+      regOp       <= r.regOp;
     --   rxData8b      <= r.rxData8b;
     --   rxData8bValid <= r.rxData8bValid;
     --   aligned       <= r.aligned;
@@ -214,16 +235,16 @@ PORT MAP(
     seq : process (DATA_CLK) is
     begin
         if (rising_edge(DATA_CLK)) then
-            RES_VALID(0) <= '0';
+            -- RES_VALID(0) <= '0';
             r <= rin after GATE_DELAY_G;
-            if r.read = "11" then
-                DC_RESPONSE(15 downto 0) <= "0000" + CtrlRegister(to_integer(unsigned(r.regAddr)));
-                RES_VALID(0) <= '1';
-            elsif r.write = "11" then
-                CtrlRegister(to_integer(unsigned(r.regAddr))) <= r.regData;
-                DC_RESPONSE(15 downto 0) <= "0000" + r.regAddr;
-                RES_VALID(0) <= '1';                
-            end if;
+            -- if r.read = "11" then
+            --     DC_RESPONSE(15 downto 0) <= "0000" + CtrlRegister(to_integer(unsigned(r.regAddr)));
+            --     RES_VALID(0) <= '1';
+            -- elsif r.write = "11" then
+            --     CtrlRegister(to_integer(unsigned(r.regAddr))) <= r.regWrData;
+            --     DC_RESPONSE(15 downto 0) <= "0000" + r.regAddr;
+            --     RES_VALID(0) <= '1';                
+            -- end if;
         end if;
     end process;
 

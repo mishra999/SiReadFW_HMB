@@ -48,9 +48,9 @@
 
 
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlogcomp -work work ../../../bram8x3000.v 
-vhpcomp -work work ../../example_design/bram8x3000_exdes.vhd
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhpcomp  -work work ../../../bram8x3000.vhd 
+vhpcomp  -work work ../../example_design/bram8x3000_exdes.vhd
 
 echo "Compiling Test Bench Files"
 
@@ -63,8 +63,7 @@ vhpcomp -work work    ../bmg_stim_gen.vhd
 vhpcomp -work work    ../bram8x3000_synth.vhd 
 vhpcomp -work work    ../bram8x3000_tb.vhd
 
+fuse work.bram8x3000_tb -L unisims -L xilinxcorelib -o bram8x3000_tb.exe
 
-vlogcomp -work work $XILINX/verilog/src/glbl.v
-fuse work.bram8x3000_tb work.glbl -L unisims_ver -L xilinxcorelib_ver -o bram8x3000_tb.exe
 
 ./bram8x3000_tb.exe -gui -tclbatch simcmds.tcl

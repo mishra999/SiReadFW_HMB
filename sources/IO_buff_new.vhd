@@ -27,21 +27,24 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity IO_Buffers_new is
 	generic (
-		num_DC : integer := 3 --highest index in DC signal vectors: (# of DCs) - 1  
+		num_DC : integer := 0 --highest index in DC signal vectors: (# of DCs) - 1  
 		);
     Port ( RX_P : in  STD_LOGIC_VECTOR (num_DC downto 0);
            RX_N : in  STD_LOGIC_VECTOR (num_DC downto 0);
            TX : in  STD_LOGIC_VECTOR (num_DC downto 0);
-           DATA_CLK : in STD_LOGIC;
+		   DATA_CLK_P : in STD_LOGIC;
+		   DATA_CLK_N : in STD_LOGIC;
+        --    DATA_CLK : in STD_LOGIC; --by me
+		   DATA_CLK : out STD_LOGIC; --by me
 			--   GLOB_EVNT : in STD_LOGIC_VECTOR(3 downto 0);
-           SYNC : in  STD_LOGIC_VECTOR (num_DC downto 0); --Universal sync signal
+        --    SYNC : in  STD_LOGIC_VECTOR (num_DC downto 0); --Universal sync signal
            TX_P : out  STD_LOGIC_VECTOR (num_DC downto 0);
            TX_N : out  STD_LOGIC_VECTOR (num_DC downto 0);
-			  DC_CLK_P : out  STD_LOGIC_VECTOR (num_DC downto 0);
-           DC_CLK_N : out  STD_LOGIC_VECTOR (num_DC downto 0);
-           RX : out  STD_LOGIC_VECTOR (num_DC downto 0);
-           SYNC_P : out  STD_LOGIC_VECTOR (num_DC downto 0);
-           SYNC_N : out  STD_LOGIC_VECTOR (num_DC downto 0));
+		-- 	  DC_CLK_P : out  STD_LOGIC_VECTOR (num_DC downto 0); --by me
+        --    DC_CLK_N : out  STD_LOGIC_VECTOR (num_DC downto 0); --by me
+           RX : out  STD_LOGIC_VECTOR (num_DC downto 0));
+        --    SYNC_P : out  STD_LOGIC_VECTOR (num_DC downto 0);
+        --    SYNC_N : out  STD_LOGIC_VECTOR (num_DC downto 0));
 			--   GLOB_EVNT_P : out STD_LOGIC_VECTOR(3 downto 0);
 			--   GLOB_EVNT_N : out STD_LOGIC_VECTOR(3 downto 0));
 end IO_Buffers_new;
@@ -68,36 +71,47 @@ Gen_buffers : for I in num_DC downto 0 generate
 		OB => TX_N(I),  
 		I  => TX(I)); 
 		
-	SYNC1_OBUFDS_inst : OBUFDS -- sync to DC 1
-	generic map ( IOSTANDARD => "LVDS_25")
+	-- SYNC1_OBUFDS_inst : OBUFDS -- sync to DC 1
+	-- generic map ( IOSTANDARD => "LVDS_25")
+	-- port map (
+	-- 	O => SYNC_P(I),
+	-- 	OB => SYNC_N(I),
+	-- 	I => SYNC(I));
+
+	DATA_CLK_OBUFDS : IBUFDS -- input buffer: sys clock for qblink
+	generic map (
+	     DIFF_TERM    => TRUE, -- Differential Termination is not available on board
+	     IOSTANDARD => "LVDS_25" 
+	     )
 	port map (
-		O => SYNC_P(I),
-		OB => SYNC_N(I),
-		I => SYNC(I));
-	
-DC_CLK_ODDR2 : ODDR2  --use ODDR2 with internal data clk to generate dc_clk
-   generic map(
-      DDR_ALIGNMENT => "NONE", -- Sets output alignment to "NONE", "C0", "C1" 
-      INIT => '0', -- Sets initial state of the Q output to '0' or '1'
-      SRTYPE => "SYNC") -- Specifies "SYNC" or "ASYNC" set/reset
-   port map (
-      Q => dc_clk(I), -- 1-bit output data
-      C0 => DATA_CLK, -- 1-bit clock input
-      C1 => not DATA_CLK, -- 1-bit clock input
-      CE => '1',  -- 1-bit clock enable input
-      D0 => '1',   -- 1-bit data input (associated with C0)
-      D1 => '0',   -- 1-bit data input (associated with C1)
-      R => '0',    -- 1-bit reset input
-      S => '0'     -- 1-bit set input
-   );
+		O => DATA_CLK,
+		I => DATA_CLK_P(I),
+		IB => DATA_CLK_N(I));
 
 
-DC_CLK_OBUFDS : OBUFDS --ODDR2 generated dc_clk buffered OBUFDS to drive output Clocks to DCs.
-generic map (IOSTANDARD => "LVDS_25")
-port map (
-		O => DC_CLK_P(I),
-		OB => DC_CLK_N(I),
-		I => dc_clk(I)); 
+-- DC_CLK_ODDR2 : ODDR2  --use ODDR2 with internal data clk to generate dc_clk
+--    generic map(
+--       DDR_ALIGNMENT => "NONE", -- Sets output alignment to "NONE", "C0", "C1" 
+--       INIT => '0', -- Sets initial state of the Q output to '0' or '1'
+--       SRTYPE => "SYNC") -- Specifies "SYNC" or "ASYNC" set/reset
+--    port map (
+--       Q => dc_clk(I), -- 1-bit output data
+--       C0 => DATA_CLK, -- 1-bit clock input
+--       C1 => not DATA_CLK, -- 1-bit clock input
+--       CE => '1',  -- 1-bit clock enable input
+--       D0 => '1',   -- 1-bit data input (associated with C0)
+--       D1 => '0',   -- 1-bit data input (associated with C1)
+--       R => '0',    -- 1-bit reset input
+--       S => '0'     -- 1-bit set input
+--    ); --by me
+
+
+-- DC_CLK_OBUFDS : OBUFDS --ODDR2 generated dc_clk buffered OBUFDS to drive output Clocks to DCs.
+-- generic map (IOSTANDARD => "LVDS_25")
+-- port map (
+-- 		O => DC_CLK_P(I),
+-- 		OB => DC_CLK_N(I),
+-- 		I => dc_clk(I)); --by me
 	
 end generate Gen_buffers;
 

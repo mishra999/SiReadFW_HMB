@@ -52,14 +52,14 @@ set work work
 vlib work
 
 # compile all of the files
-vlog -work work $env(XILINX)/verilog/src/glbl.v
-vlog -work work ../../../clockgen_bytelink.v
-vlog -work work ../../example_design/clockgen_bytelink_exdes.v
-vlog -work work ../clockgen_bytelink_tb.v
+vcom -work work ../../../clockgen_bytelink.vhd
+vcom -work work ../../example_design/clockgen_bytelink_exdes.vhd
+vcom -work work ../clockgen_bytelink_tb.vhd
 
 # run the simulation
-vsim  -t ps -voptargs="+acc" -L unisims_ver work.clockgen_bytelink_tb work.glbl
+vsim  -t ps -voptargs="+acc" -L unisim work.clockgen_bytelink_tb 
 do wave.do
+when {end_of_sim} {echo "End of Simulation"; stop} 
 log clockgen_bytelink_tb/dut/counter
 log -r /*
 run 50000ns

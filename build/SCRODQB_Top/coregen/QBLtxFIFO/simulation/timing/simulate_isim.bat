@@ -44,8 +44,8 @@
 :: THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 :: PART OF THIS FILE AT ALL TIMES.
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlogcomp -work work ..\\..\\implement\\results\\routed.v
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhpcomp  -work work ..\\..\\implement\\results\\routed.vhd
 
 echo "Compiling Test Bench Files"
 vhpcomp -work work ..\\QBLtxFIFO_pkg.vhd
@@ -56,6 +56,6 @@ vhpcomp -work work ..\\QBLtxFIFO_pctrl.vhd
 vhpcomp -work work ..\\QBLtxFIFO_synth.vhd 
 vhpcomp -work work ..\\QBLtxFIFO_tb.vhd
 
-fuse work.QBLtxFIFO_tb work.glbl -L simprims_ver -o QBLtxFIFO_tb.exe
+fuse work.QBLtxFIFO_tb -L simprim  -o QBLtxFIFO_tb.exe
 
 .\\QBLtxFIFO_tb.exe -sdfmax /QBLtxFIFO_tb/QBLtxFIFO_synth_inst/QBLtxFIFO_inst=..\\..\\implement\\results\\routed.sdf -gui -tclbatch .\\wave_isim.tcl

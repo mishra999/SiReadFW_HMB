@@ -47,8 +47,8 @@ srout_bram_blkmem/simulation/timing/wave_ncsim.sv
 srout_bram_blkmem.asy
 srout_bram_blkmem.gise
 srout_bram_blkmem.ngc
-srout_bram_blkmem.v
-srout_bram_blkmem.veo
+srout_bram_blkmem.vhd
+srout_bram_blkmem.vho
 srout_bram_blkmem.xco
 srout_bram_blkmem.xise
 srout_bram_blkmem_flist.txt

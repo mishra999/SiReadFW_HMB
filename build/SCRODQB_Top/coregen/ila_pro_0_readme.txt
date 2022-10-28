@@ -1,5 +1,5 @@
 The following files were generated for 'ila_pro_0' in directory
-/home/ise/xilinx/github/SiRead_FW/build/SCRODQB_Top/coregen/
+/home/ise/git/SiRead_FW1/build/SCRODQB_Top/coregen/
 
 XCO file generator:
    Generate an XCO file for compatibility with legacy flows.
@@ -12,13 +12,13 @@ Creates an implementation netlist:
    * ila_pro_0.cdc
    * ila_pro_0.ngc
    * ila_pro_0.ucf
-   * ila_pro_0.v
-   * ila_pro_0.veo
+   * ila_pro_0.vhd
+   * ila_pro_0.vho
 
 Creates an HDL instantiation template:
    Creates an HDL instantiation template for the IP.
 
-   * ila_pro_0.veo
+   * ila_pro_0.vho
 
 IP Symbol Generator:
    Generate an IP symbol based on the current project options'.

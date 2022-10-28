@@ -82,7 +82,7 @@ architecture test of clockgen_bytelink_tb is
 
 
   -- we'll be using the period in many locations
-  constant PER1        : time := 46.882 ns;
+  constant PER1        : time := 80.0 ns;
 
 
   -- Declare the input clock signals

@@ -14,10 +14,10 @@
 --  
 -- Dependencies:
 --   
--- Revision:
+-- Revision: 
 -- Revision 0.01 - File Created
 -- Additional Comments:
---   
+--    
 -- Notes:   
 -- This testbench has been automatically generated using types std_logic and
 -- std_logic_vector for the ports of the unit under test.  Xilinx recommends
@@ -116,11 +116,15 @@ BEGIN
    stim_proc: process
    begin		
 		QB_RST <= "1"; -- "1111";
+      sync <= "1";
+      sync1 <= "1";
       -- hold reset state for 100 ns.
       wait for 100 ns;	
 		
       wait for DATA_CLK_period*10;
 		QB_RST <= "0"; -- "0000";
+         sync <= "0";
+      sync1 <= "0";
       wait until SERIAL_CLK_LCK(0) = '1' and TRIG_LINK_SYNC(0) = '1';
 	wait for DATA_CLK_period*2;
 	-- SERIAL_CLK_LCK(0) <= '1';

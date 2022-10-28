@@ -4,7 +4,7 @@ BMD_DC_CLK_GEN/doc/clk_wiz_v3_6_readme.txt
 BMD_DC_CLK_GEN/doc/clk_wiz_v3_6_vinfo.html
 BMD_DC_CLK_GEN/doc/pg065_clk_wiz.pdf
 BMD_DC_CLK_GEN/example_design/BMD_DC_CLK_GEN_exdes.ucf
-BMD_DC_CLK_GEN/example_design/BMD_DC_CLK_GEN_exdes.v
+BMD_DC_CLK_GEN/example_design/BMD_DC_CLK_GEN_exdes.vhd
 BMD_DC_CLK_GEN/example_design/BMD_DC_CLK_GEN_exdes.xdc
 BMD_DC_CLK_GEN/implement/implement.bat
 BMD_DC_CLK_GEN/implement/implement.sh
@@ -16,7 +16,7 @@ BMD_DC_CLK_GEN/implement/planAhead_rdn.sh
 BMD_DC_CLK_GEN/implement/planAhead_rdn.tcl
 BMD_DC_CLK_GEN/implement/xst.prj
 BMD_DC_CLK_GEN/implement/xst.scr
-BMD_DC_CLK_GEN/simulation/BMD_DC_CLK_GEN_tb.v
+BMD_DC_CLK_GEN/simulation/BMD_DC_CLK_GEN_tb.vhd
 BMD_DC_CLK_GEN/simulation/functional/simcmds.tcl
 BMD_DC_CLK_GEN/simulation/functional/simulate_isim.bat
 BMD_DC_CLK_GEN/simulation/functional/simulate_isim.sh
@@ -25,11 +25,9 @@ BMD_DC_CLK_GEN/simulation/functional/simulate_mti.do
 BMD_DC_CLK_GEN/simulation/functional/simulate_mti.sh
 BMD_DC_CLK_GEN/simulation/functional/simulate_ncsim.sh
 BMD_DC_CLK_GEN/simulation/functional/simulate_vcs.sh
-BMD_DC_CLK_GEN/simulation/functional/ucli_commands.key
-BMD_DC_CLK_GEN/simulation/functional/vcs_session.tcl
 BMD_DC_CLK_GEN/simulation/functional/wave.do
 BMD_DC_CLK_GEN/simulation/functional/wave.sv
-BMD_DC_CLK_GEN/simulation/timing/BMD_DC_CLK_GEN_tb.v
+BMD_DC_CLK_GEN/simulation/timing/BMD_DC_CLK_GEN_tb.vhd
 BMD_DC_CLK_GEN/simulation/timing/sdf_cmd_file
 BMD_DC_CLK_GEN/simulation/timing/simcmds.tcl
 BMD_DC_CLK_GEN/simulation/timing/simulate_isim.sh
@@ -44,8 +42,8 @@ BMD_DC_CLK_GEN/simulation/timing/wave.do
 BMD_DC_CLK_GEN.asy
 BMD_DC_CLK_GEN.gise
 BMD_DC_CLK_GEN.ucf
-BMD_DC_CLK_GEN.v
-BMD_DC_CLK_GEN.veo
+BMD_DC_CLK_GEN.vhd
+BMD_DC_CLK_GEN.vho
 BMD_DC_CLK_GEN.xco
 BMD_DC_CLK_GEN.xdc
 BMD_DC_CLK_GEN.xise

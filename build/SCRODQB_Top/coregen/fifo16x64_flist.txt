@@ -49,9 +49,8 @@ fifo16x64/simulation/timing/wave_ncsim.sv
 fifo16x64.asy
 fifo16x64.gise
 fifo16x64.ngc
-fifo16x64.sym
-fifo16x64.v
-fifo16x64.veo
+fifo16x64.vhd
+fifo16x64.vho
 fifo16x64.xco
 fifo16x64.xise
 fifo16x64_flist.txt

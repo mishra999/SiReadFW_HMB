@@ -48,8 +48,8 @@
 vlib work 
 vmap work work 
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlog -work work ../../implement/results/routed.v
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vcom  -work work ../../implement/results/routed.vhd
 
 echo "Compiling Test Bench Files"
 vcom -work work ../udp64kfifo_pkg.vhd  
@@ -60,7 +60,7 @@ vcom -work work ../udp64kfifo_pctrl.vhd
 vcom -work work ../udp64kfifo_synth.vhd 
 vcom -work work ../udp64kfifo_tb.vhd
 
-vsim  -t ps -voptargs="+acc" +transport_int_delays -L simprims_ver glbl -sdfmax /udp64kfifo_tb/udp64kfifo_synth_inst/udp64kfifo_inst=../../implement/results/routed.sdf work.udp64kfifo_tb
+vsim  -t ps -voptargs="+acc" +transport_int_delays -L simprim -sdfmax /udp64kfifo_tb/udp64kfifo_synth_inst/udp64kfifo_inst=../../implement/results/routed.sdf work.udp64kfifo_tb
 
 add log -r /*
 do wave_mti.do

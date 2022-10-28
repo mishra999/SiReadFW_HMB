@@ -48,8 +48,8 @@
 vlib work 
 vmap work work 
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlog -work work ../../implement/results/routed.v
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vcom  -work work ../../implement/results/routed.vhd
 
 echo "Compiling Test Bench Files"
 vcom -work work ../fifoonly_adcfifo_pkg.vhd  
@@ -60,7 +60,7 @@ vcom -work work ../fifoonly_adcfifo_pctrl.vhd
 vcom -work work ../fifoonly_adcfifo_synth.vhd 
 vcom -work work ../fifoonly_adcfifo_tb.vhd
 
-vsim  -t ps -voptargs="+acc" +transport_int_delays -L simprims_ver glbl -sdfmax /fifoonly_adcfifo_tb/fifoonly_adcfifo_synth_inst/fifoonly_adcfifo_inst=../../implement/results/routed.sdf work.fifoonly_adcfifo_tb
+vsim  -t ps -voptargs="+acc" +transport_int_delays -L simprim -sdfmax /fifoonly_adcfifo_tb/fifoonly_adcfifo_synth_inst/fifoonly_adcfifo_inst=../../implement/results/routed.sdf work.fifoonly_adcfifo_tb
 
 add log -r /*
 do wave_mti.do

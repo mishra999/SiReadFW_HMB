@@ -55,16 +55,16 @@
 // "Output    Output      Phase     Duty      Pk-to-Pk        Phase"
 // "Clock    Freq (MHz) (degrees) Cycle (%) Jitter (ps)  Error (ps)"
 //----------------------------------------------------------------------------
-// CLK_OUT1____62.500______0.000______50.0______446.480____150.000
+// CLK_OUT1___125.000______0.000______50.0______360.000____150.000
 //
 //----------------------------------------------------------------------------
 // "Input Clock   Freq (MHz)    Input Jitter (UI)"
 //----------------------------------------------------------------------------
-// __primary____________12.5____________0.010
+// __primary______________25____________0.010
 
 `timescale 1ps/1ps
 
-(* CORE_GENERATION_INFO = "clockgen_bytelink,clk_wiz_v3_6,{component_name=clockgen_bytelink,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=false,use_inclk_switchover=false,use_dyn_reconfig=false,feedback_source=FDBK_AUTO,primtype_sel=DCM_SP,num_out_clk=1,clkin1_period=80.0,clkin2_period=80.0,use_power_down=false,use_reset=true,use_locked=true,use_inclk_stopped=false,use_status=false,use_freeze=false,use_clk_valid=false,feedback_type=SINGLE,clock_mgr_type=AUTO,manual_override=false}" *)
+(* CORE_GENERATION_INFO = "clockgen_bytelink,clk_wiz_v3_6,{component_name=clockgen_bytelink,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=false,use_inclk_switchover=false,use_dyn_reconfig=false,feedback_source=FDBK_AUTO,primtype_sel=DCM_SP,num_out_clk=1,clkin1_period=40.0,clkin2_period=40.0,use_power_down=false,use_reset=true,use_locked=true,use_inclk_stopped=false,use_status=false,use_freeze=false,use_clk_valid=false,feedback_type=SINGLE,clock_mgr_type=AUTO,manual_override=false}" *)
 module clockgen_bytelink
  (// Clock in ports
   input         SST_CLK_IN,
@@ -98,7 +98,7 @@ module clockgen_bytelink
     .CLKFX_DIVIDE          (1),
     .CLKFX_MULTIPLY        (5),
     .CLKIN_DIVIDE_BY_2     ("FALSE"),
-    .CLKIN_PERIOD          (80.0),
+    .CLKIN_PERIOD          (40.0),
     .CLKOUT_PHASE_SHIFT    ("NONE"),
     .CLK_FEEDBACK          ("1X"),
     .DESKEW_ADJUST         ("SYSTEM_SYNCHRONOUS"),

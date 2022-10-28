@@ -48,7 +48,8 @@
 
 
 
-vlogcomp -work work ../../implement/results/routed.v
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhpcomp  -work work ../../implement/results/routed.vhd
 
 echo "Compiling Test Bench Files"
 
@@ -61,6 +62,7 @@ vhpcomp -work work    ../bmg_stim_gen.vhd
 vhpcomp -work work    ../srout_bram_blkmem_synth.vhd 
 vhpcomp -work work    ../srout_bram_blkmem_tb.vhd
 
-    fuse -L simprims_ver work.srout_bram_blkmem_tb work.glbl -o srout_bram_blkmem_tb.exe
+
+    fuse -L simprim work.srout_bram_blkmem_tb -o srout_bram_blkmem_tb.exe
 
 ./srout_bram_blkmem_tb.exe -sdftyp /srout_bram_blkmem_tb/srout_bram_blkmem_synth_inst/bmg_port=../../implement/results/routed.sdf -gui -tclbatch simcmds.tcl

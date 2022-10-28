@@ -48,9 +48,9 @@
 
 
 mkdir work
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-ncvlog -work work ../../../bram8x3000.v 
-ncvhdl -v93 -work work ../../example_design/bram8x3000_exdes.vhd
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+ncvhdl -v93  -work work ../../../bram8x3000.vhd \
+    ../../example_design/bram8x3000_exdes.vhd
 
 echo "Compiling Test Bench Files"
 
@@ -64,8 +64,7 @@ ncvhdl -v93 -work work    ../bram8x3000_synth.vhd
 ncvhdl -v93 -work work    ../bram8x3000_tb.vhd
 
 echo "Elaborating Design"
-ncvlog -work work $XILINX/verilog/src/glbl.v
-ncelab -access +rwc glbl work.bram8x3000_tb
+ncelab -access +rwc work.bram8x3000_tb
 
 echo "Simulating Design"
 ncsim -gui -input @"simvision -input wave_ncsim.sv" work.bram8x3000_tb

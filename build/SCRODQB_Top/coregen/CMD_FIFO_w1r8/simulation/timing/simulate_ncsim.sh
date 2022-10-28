@@ -46,8 +46,8 @@
 # PART OF THIS FILE AT ALL TIMES.
 #--------------------------------------------------------------------------------
 mkdir work
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-ncvlog -work work ../../implement/results/routed.v
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+ncvhdl -v93  -work work ../../implement/results/routed.vhd
 
 echo "Compiling Test Bench Files"
 ncvhdl -v93 -work work ../CMD_FIFO_w1r8_pkg.vhd
@@ -67,7 +67,7 @@ echo 'SCOPE = :CMD_FIFO_w1r8_synth_inst:CMD_FIFO_w1r8_inst,' >> sdf.cmd
 echo 'MTM_CONTROL = "MAXIMUM";' >> sdf.cmd
 
 echo "Elaborating Design"
-ncelab -access +rwc glbl -sdf_cmd_file sdf.cmd work.CMD_FIFO_w1r8_tb
+ncelab -access +rwc -sdf_cmd_file sdf.cmd work.CMD_FIFO_w1r8_tb
 
 echo "Simulating Design"
 ncsim -gui -input @"simvision -input wave_ncsim.sv" work.CMD_FIFO_w1r8_tb

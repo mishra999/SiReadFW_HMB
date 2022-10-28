@@ -49,9 +49,8 @@ serializationFifo/simulation/timing/wave_ncsim.sv
 serializationFifo.asy
 serializationFifo.gise
 serializationFifo.ngc
-serializationFifo.sym
-serializationFifo.v
-serializationFifo.veo
+serializationFifo.vhd
+serializationFifo.vho
 serializationFifo.xco
 serializationFifo.xise
 serializationFifo_flist.txt

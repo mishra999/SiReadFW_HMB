@@ -46,8 +46,8 @@
 # PART OF THIS FILE AT ALL TIMES.
 #--------------------------------------------------------------------------------
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlogcomp -work work ../../implement/results/routed.v
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhpcomp  -work work ../../implement/results/routed.vhd
 
 echo "Compiling Test Bench Files"
 vhpcomp -work work ../fifo16x64_pkg.vhd
@@ -58,6 +58,6 @@ vhpcomp -work work ../fifo16x64_pctrl.vhd
 vhpcomp -work work ../fifo16x64_synth.vhd 
 vhpcomp -work work ../fifo16x64_tb.vhd
 
-fuse work.fifo16x64_tb work.glbl -L simprims_ver -o fifo16x64_tb.exe
+fuse work.fifo16x64_tb -L simprim  -o fifo16x64_tb.exe
 
 ./fifo16x64_tb.exe -sdfmax /fifo16x64_tb/fifo16x64_synth_inst/fifo16x64_inst=../../implement/results/routed.sdf -gui -tclbatch ./wave_isim.tcl

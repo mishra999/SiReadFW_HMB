@@ -44,8 +44,8 @@
 :: THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
 :: PART OF THIS FILE AT ALL TIMES.
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlogcomp -work work ..\\..\\implement\\results\\routed.v
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhpcomp  -work work ..\\..\\implement\\results\\routed.vhd
 
 echo "Compiling Test Bench Files"
 vhpcomp -work work ..\\serializationFifo_pkg.vhd
@@ -56,6 +56,6 @@ vhpcomp -work work ..\\serializationFifo_pctrl.vhd
 vhpcomp -work work ..\\serializationFifo_synth.vhd 
 vhpcomp -work work ..\\serializationFifo_tb.vhd
 
-fuse work.serializationFifo_tb work.glbl -L simprims_ver -o serializationFifo_tb.exe
+fuse work.serializationFifo_tb -L simprim  -o serializationFifo_tb.exe
 
 .\\serializationFifo_tb.exe -sdfmax /serializationFifo_tb/serializationFifo_synth_inst/serializationFifo_inst=..\\..\\implement\\results\\routed.sdf -gui -tclbatch .\\wave_isim.tcl

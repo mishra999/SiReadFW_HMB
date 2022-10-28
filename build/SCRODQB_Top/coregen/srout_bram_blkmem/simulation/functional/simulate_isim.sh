@@ -48,9 +48,9 @@
 
 
 
-echo "Compiling Core Verilog UNISIM/Behavioral model"
-vlogcomp -work work ../../../srout_bram_blkmem.v 
-vhpcomp -work work ../../example_design/srout_bram_blkmem_exdes.vhd
+echo "Compiling Core VHDL UNISIM/Behavioral model"
+vhpcomp  -work work ../../../srout_bram_blkmem.vhd 
+vhpcomp  -work work ../../example_design/srout_bram_blkmem_exdes.vhd
 
 echo "Compiling Test Bench Files"
 
@@ -63,8 +63,7 @@ vhpcomp -work work    ../bmg_stim_gen.vhd
 vhpcomp -work work    ../srout_bram_blkmem_synth.vhd 
 vhpcomp -work work    ../srout_bram_blkmem_tb.vhd
 
+fuse work.srout_bram_blkmem_tb -L unisims -L xilinxcorelib -o srout_bram_blkmem_tb.exe
 
-vlogcomp -work work $XILINX/verilog/src/glbl.v
-fuse work.srout_bram_blkmem_tb work.glbl -L unisims_ver -L xilinxcorelib_ver -o srout_bram_blkmem_tb.exe
 
 ./srout_bram_blkmem_tb.exe -gui -tclbatch simcmds.tcl

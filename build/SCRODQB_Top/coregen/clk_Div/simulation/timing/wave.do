@@ -49,10 +49,14 @@
 
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -noupdate /clk_Div_tb/CLK_IN1
-add wave -noupdate /clk_Div_tb/COUNT
-add wave -noupdate /clk_Div_tb/LOCKED
-add wave -noupdate /clk_Div_tb/RESET
+add wave -noupdate -divider {Input clocks}
+add wave -noupdate /clk_Div_tb/clk_in1
+add wave -noupdate -divider {Output clocks}
+add wave -noupdate /clk_Div_tb/clk_in1
+add wave -noupdate /clk_Div_tb/count
+add wave -noupdate /clk_Div_tb/counter_reset
+add wave -noupdate /clk_Div_tb/locked
+add wave -noupdate /clk_Div_tb/reset
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {3223025 ps} 0}
 configure wave -namecolwidth 238
@@ -69,4 +73,3 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {74848022 ps}

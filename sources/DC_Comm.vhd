@@ -36,6 +36,7 @@ use ieee.std_logic_unsigned.all;
 entity DC_Comm is 
 	Generic ( num_DC : integer := 0); --highest index in DC signal vectors: (# of DCs) - 1  
     Port ( DATA_CLK : in  sl;
+		   sstX5Clk : in sl; --by me
            RX : in  slv(num_DC downto 0);
            TX : out  slv(num_DC downto 0);
            DC_CMD : in  slv (31 downto 0); 
@@ -52,7 +53,7 @@ entity DC_Comm is
 			  SERIAL_CLK_LCK : out slv(num_DC downto 0);
 			  TRIG_LINK_SYNC : out slv(num_DC downto 0);
 			--   Event_Trig : out sl; --global event trigger --me
-			  sync : in slv(num_DC downto 0)
+			  sync : in slv(num_DC downto 0) := (others => '0')
 			  );
 end DC_Comm;
  
@@ -141,6 +142,7 @@ end process;
 DC_Interface : entity work.QBLink                                                     
 PORT MAP( 
 			 sstClk => DATA_CLK,
+			 sstX5Clk => sstX5Clk,  
 			 rst => QB_RST(0), --(I),
 			 rawSerialOut => tx_dc(0), --(I),
 			 rawSerialIn => rx_dc(0), --(I),
