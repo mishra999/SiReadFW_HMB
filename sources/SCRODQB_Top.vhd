@@ -76,7 +76,7 @@ entity SCRODQB_Top is
 			-- --External SCROD trigger
 			-- TRIG_IN			  : IN sl;
 			-- TRIG_OUT_P		  : OUT sl;
-			-- TRIG_OUT_N		  : OUT sl
+			-- TRIG_OUT_N		  : OUT sl 
 	);
 end SCRODQB_Top;
  

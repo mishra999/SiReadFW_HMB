@@ -84,13 +84,13 @@ ARCHITECTURE behavior OF DC_Comm_QBLinkTB IS
     signal regOp     : std_logic;
     signal DC_RESPONSEb : std_logic_vector (31 downto 0):= (others => '0'); 
     signal RES_VALIDb : std_logic_vector( 0 downto 0):= (others => '0'); 
-    -- signal sstX5Clk : std_logic;
+    signal sstX5Clk : std_logic;
     constant N_GPR : integer := 20;--127;
     type GPR is array(N_GPR-1 downto 0) of std_logic_vector(15 downto 0);
     signal CtrlRegister : GPR:= (others => x"0000");
    -- Clock period definitions
    constant DATA_CLK_period : time := 80 ns;
---    constant sst5x_CLK_period : time := 8 ns;
+   constant sst5x_CLK_period : time := 16 ns;
    constant WORD_READ_C      : std_logic_vector(31 downto 0) := x"72656164";
    constant WORD_WRITE_C     : std_logic_vector(31 downto 0) := x"72697465";
  
@@ -99,7 +99,7 @@ BEGIN
 	-- Instantiate the Unit Under Test (UUT)
    uut: entity work.DC_Comm PORT MAP (
           DATA_CLK => DATA_CLK,
-        --   sstX5Clk => sstX5Clk,
+          sstX5Clk => sstX5Clk,
           RX => RX,
           TX => TX,
           SYNC => QB_RST,
@@ -117,7 +117,7 @@ BEGIN
 	Scrod_comm: entity work.DC_Comm_back
 	PORT MAP (
 			 DATA_CLK => DATA_CLK,
-			--  sstX5Clk => sstX5Clk,
+			 sstX5Clk => sstX5Clk,
              RX     => TX,
              TX => RX,
 			 QB_RST => QB_RST1, 
@@ -141,13 +141,13 @@ BEGIN
 		wait for DATA_CLK_period/2;
    end process;
 
---    sst5x_CLK_process :process
---    begin
--- 		sstX5Clk <= '0';
--- 		wait for sst5x_CLK_period/2;
--- 		sstX5Clk <= '1';
--- 		wait for sst5x_CLK_period/2;
---    end process;
+   sst5x_CLK_process :process
+   begin
+		sstX5Clk <= '0';
+		wait for sst5x_CLK_period/2;
+		sstX5Clk <= '1';
+		wait for sst5x_CLK_period/2;
+   end process;
 
     -- DC_reset_process : process(DATA_CLK) --unused for now 10/01
     -- ----variable counter : integer range 0 to 2 := 0;
@@ -219,32 +219,29 @@ BEGIN
 
 
     -- wait until SERIAL_CLK_LCK(0) = '1' and TRIG_LINK_SYNC(0) = '1';
-    wait until serialClkLck1(0) = '1' and trgLinkSync1(0) = '1';
+    wait until trgLinkSync1(0) = '1';
 	wait for DATA_CLK_period*2;
 	-- SERIAL_CLK_LCK(0) <= '1';
 	-- TRIG_LINK_SYNC(0) <= '1';
 
 
-        wait for DATA_CLK_period*100;
-		QB_RST <= "1"; -- "1111";
-        QB_RST1 <= "1";
-        wait for DATA_CLK_period*1;
-      sync <= "1";
-      sync1 <= "1";
+    --     wait for DATA_CLK_period*100;
+	-- 	QB_RST <= "1"; -- "1111";
+    --     QB_RST1 <= "1";
+    --     wait for DATA_CLK_period*1;
+    --   sync <= "1";
+    --   sync1 <= "1";
 
-      -- hold reset state for 100 ns.
-      --wait for 100 ns;	
-      wait for DATA_CLK_period*10;
-		QB_RST <= "0"; -- "0000";
-        QB_RST1 <= "0";
-        wait for DATA_CLK_period*1;
-         sync <= "0";
-    --wait for DATA_CLK_period*10;
-      sync1 <= "0";
+    --   -- hold reset state for 100 ns.
+    --   --wait for 100 ns;	
+    --   wait for DATA_CLK_period*10;
+	-- 	QB_RST <= "0"; -- "0000";
+    --     QB_RST1 <= "0";
+    --     wait for DATA_CLK_period*1;
+    --      sync <= "0";
+    -- --wait for DATA_CLK_period*10;
+    --   sync1 <= "0";
 
-
-
---	
 	wait for DATA_CLK_period*2;
 		DC_CMD <= WORD_READ_C;
 		CMD_VALID(0) <= '1';
