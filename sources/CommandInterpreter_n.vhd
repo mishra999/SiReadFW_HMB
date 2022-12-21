@@ -130,9 +130,10 @@ architecture rtl of CommandInterpreter is
     signal rin : RegType;
 	-- signal tin : RegType;
 	signal loadQB : sl := '0';
-	signal QB_loadReg : Word32Array(1 downto 0);
+	signal QB_loadReg : Word32Array(2 downto 0);
 	signal DC_cmdRespReq : slv(num_DC downto 0);
 	signal start_load : sl := '0';
+    signal start_load1 : sl := '0';
     -- ISE attributes to keep signals for debugging
     -- attribute keep : string;
     -- attribute keep of r : signal is "true";
@@ -169,6 +170,7 @@ architecture rtl of CommandInterpreter is
 	-- added signal to monitor wordsleft 15 oct 2020: Shivang
 --	signal wordsleft_i  : std_logic_vector(31 downto 0) := (others=> '0');
 	signal dc_ack : sl := '0';
+	signal dc_ack1 : sl := '0';
     -- attribute keep : string;
     -- attribute keep of stateNum : signal is "true";
 
@@ -662,7 +664,7 @@ begin
         regWrData   <= r.regWrData;
         regReq      <= r.regReq;
         regOp       <= r.regOp;
-        DC_CMD      <= QB_loadReg(1);
+        DC_CMD      <= QB_loadReg(2);
         --rxdata, M
         --rxDataReady   <= '0';
         -- Assignment of combinatorial variable to signal
@@ -670,34 +672,59 @@ begin
 
     end process;
 
-    seq : process (usrClk) is
+    -- seq : process (usrClk) is
+    -- begin
+    --     if (rising_edge(usrClk)) then
+    --         r <= rin after GATE_DELAY_G;
+	-- 		--    t <= tin after GATE_DELAY_G;
+	-- 		-- if EVNT_FLAG = '0' then
+    --         if start_load = '0' then
+    --             if r.state = COMMAND_DATA_S and loadQB = '1' then
+    --                 QB_loadReg(0) <= r.commandType;
+    --                 start_load <= '1'; --by Mudit, earlier zero
+    --             elsif r.state = COMMAND_CHECKSUM_S and loadQB = '1' then
+    --                 QB_loadReg(1) <= r.command;
+    --                 start_load <= '1';
+    --             -- elsif r.state = CHECK_MORE_S or r.state = ERR_RESPONSE_S then
+    --             -- 	start_load <= '0'; --Mudit
+    --             else 
+    --                 start_load <= '0';
+    --             end if;
+            
+    --         else
+                
+    --             if dc_ack = '1' then
+    --                 start_load <= '0';
+    --             end if;
+    --         end if;
+				
+	-- 		-- else
+	-- 		-- 	start_load <= '0';
+	-- 		-- end if;
+	-- 	end if;
+    -- end process;
+
+
+    seq1 : process (usrClk) is
     begin
         if (rising_edge(usrClk)) then
             r <= rin after GATE_DELAY_G;
-			--    t <= tin after GATE_DELAY_G;
-			-- if EVNT_FLAG = '0' then
-            if start_load = '0' then
-                if r.state = COMMAND_DATA_S and loadQB = '1' then
-                    QB_loadReg(0) <= r.commandType;
-                    start_load <= '0';
-                elsif r.state = COMMAND_CHECKSUM_S and loadQB = '1' then
-                    QB_loadReg(0) <= r.command;
-                    start_load <= '1';
-                -- elsif r.state = CHECK_MORE_S or r.state = ERR_RESPONSE_S then
-                -- 	start_load <= '0'; --Mudit
-                else 
-                    start_load <= '0';
-                end if;
-            
-            else
-                if dc_ack = '1' then
-                    start_load <= '0';
-                end if;
+            if r.state = COMMAND_DATA_S and loadQB = '1' then
+                QB_loadReg(0) <= r.commandType;
+                start_load <= '1'; --by Mudit, earlier zero
+            elsif r.state = COMMAND_CHECKSUM_S and loadQB = '1' then
+                QB_loadReg(1) <= r.command;
+                start_load1 <= '1';
+            -- elsif r.state = CHECK_MORE_S or r.state = ERR_RESPONSE_S then
+            -- 	start_load <= '0'; --Mudit
             end if;
-				
-			-- else
-			-- 	start_load <= '0';
-			-- end if;
+                
+            if dc_ack = '1' then
+                start_load <= '0';
+            end if;
+            if dc_ack1 = '1' then
+                start_load1 <= '0';
+            end if;
 		end if;
     end process;
 
@@ -760,22 +787,57 @@ begin
     --     tin <= g;
     -- end process;
 
-	QBload_reg : process (dataClk, start_load) is
+	-- QBload_reg : process (dataClk, start_load1) is
+	-- begin
+    --     if(rising_edge(dataClk)) then
+    --         if start_load = '1' then
+	-- 				dc_ack <= '1';
+    --             if dc_id = 10 then
+    --                 QB_WrEn <= (others =>'1');
+    --             else
+    --                 QB_WrEn(dc_id-1) <= '1';
+    --             end if;
+    --             QB_loadReg(1) <= QB_loadReg(0);
+    --         else
+	-- 				dc_ack <= '0';
+    --             QB_WrEn <= (others =>'0');
+    --         end if;
+    --     end if;
+    -- end process;
+
+
+	QBload_reg1 : process (dataClk) is
 	begin
         if(rising_edge(dataClk)) then
             if start_load = '1' then
-					dc_ack <= '1';
+				dc_ack <= '1';
                 if dc_id = 10 then
                     QB_WrEn <= (others =>'1');
                 else
                     QB_WrEn(dc_id-1) <= '1';
                 end if;
-                QB_loadReg(1) <= QB_loadReg(0);
+                QB_loadReg(2) <= QB_loadReg(0);
+                -- start_load <= '0';
+            -- else
+			-- 	dc_ack <= '0';
+            --     QB_WrEn <= (others =>'0');
+            -- end if;
+
+            elsif start_load1 = '1' and start_load = '0' then
+				dc_ack1 <= '1';
+                if dc_id = 10 then
+                    QB_WrEn <= (others =>'1');
+                else
+                    QB_WrEn(dc_id-1) <= '1';
+                end if;
+                QB_loadReg(2) <= QB_loadReg(1);
+                -- start_load1 <= '0';
             else
-					dc_ack <= '0';
+				dc_ack1 <= '0';
+                dc_ack <= '0';
                 QB_WrEn <= (others =>'0');
-            end if;
+            end if;    
         end if;
     end process;
-
+    
 end rtl;

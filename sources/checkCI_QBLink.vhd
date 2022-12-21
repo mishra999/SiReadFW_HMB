@@ -35,7 +35,7 @@ use work.UtilityPkg.all;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
-use ieee.std_logic_unsigned.all;
+use ieee.std_logic_unsigned.all; 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
@@ -111,6 +111,7 @@ ARCHITECTURE behavior OF DC_Comm_QBLinkTB IS
    constant ERR_BIT_CS_C      : std_logic_vector(31 downto 0) := x"00000020";
    constant ERR_BIT_TIMEOUT_C : std_logic_vector(31 downto 0) := x"00000040";
 	constant QBLINK_FAILURE_C  : std_logic_vector(31 downto 0) := x"00000500"; --link not up yet error
+    constant ZERO : std_logic_vector(15 downto 0) := x"0000";
 
 	constant wordDC				: std_logic_vector(23 downto 0) := x"0000DC"; --command target is one or more DC
 	constant broadcastDC       : std_logic_vector(7 downto 0)  := x"0A";
@@ -179,8 +180,8 @@ BEGIN
           DC_CMD => DC_CMD,
           QB_WrEn => CMD_VALID,
           QB_RdEn => RESP_REQ,
-          DC_RESP => DC_RESP,
-          DC_RESP_VALID => DC_RESP_VALID,
+          DC_RESP => DC_RESPONSE,
+          DC_RESP_VALID => RESP_VALID,
           EVNT_FLAG => EVNT_FLAG,
           regAddr => regAddr,
           regWrData => regWrData,
@@ -268,16 +269,17 @@ BEGIN
     begin
         if (rising_edge(DATA_CLK)) then
             RES_VALIDb(0) <= '0';
+            DC_RESPONSEb  <= (others => '0');
             if QB_RST1 = "1" then
                 DC_RESPONSEb  <= (others => '0');
             
             elsif regReq1 = '1' then
                 if regOp1 = '0' then
-                    DC_RESPONSEb(15 downto 0) <= CtrlRegister(to_integer(unsigned(regAddr1)));
+                    DC_RESPONSEb <= ZERO & CtrlRegister(to_integer(unsigned(regAddr1)));
                     RES_VALIDb(0) <= '1';
                 elsif regOp1 = '1' then
                     CtrlRegister(to_integer(unsigned(regAddr1))) <= regWrData1; 
-                    DC_RESPONSEb(15 downto 0) <= regAddr1;
+                    DC_RESPONSEb <= ZERO & regAddr1;
                     RES_VALIDb(0) <= '1';                
                 end if;
             end if;
@@ -301,7 +303,7 @@ BEGIN
     -- --wait for DATA_CLK_period*10;
     --   sync1 <= "0";
     --   QB_RST1 <= "0";
-
+        -- CtrlRegister(10)<=x"CABC";
         wait for 100 ns;
         wait for DATA_CLK_period*10;
 		QB_RST <= "1"; -- "1111";
@@ -381,13 +383,14 @@ BEGIN
 -- first 4 MSBs are Reg Value, last 4 [LSBs] are Reg Addr
 -- For Reg Read command, Reg Value [4 MSBs] = 0000 by default, give address in last 4.
       wait for usrClk_period;
-      rxData <= x"00010002";         
+      rxData <= x"0006000A";         
 -----------------------------		
 		wait for usrClk_period;
 
 	-- Command Checksum: for ping x"70696e79" -- for write (Reg 2 value 1: 00010002)=>x"726A7479"	
 	-- for Read (Reg 2: 00000002) => x"72656178"
-		rxData <= x"726A7479";        
+		rxData <= x"726f7481"; 
+        -- rxDataLast <= '1';       
 		txDataReady <= '1';
 
         -- rxDataValid <= '0';
@@ -395,13 +398,78 @@ BEGIN
 
 		wait for usrClk_period;
 
-		rxData <= PACKET_CHECKSUM;
+		-- rxData <= PACKET_CHECKSUM;
+        -- wait for usrClk_period;
+        rxDataLast <= '1';
+        wait for usrClk_period;
+        rxDataLast <= '0';
+        rxDataValid <= '0';
+        -- txDataReady <= '0';
+      wait for usrClk_period*10;
+    --   txDataReady <= '0';
+      wait for usrClk_period*10;
+      wait until txdatalast='1';
+      txDataReady <= '0';
+
+
+
+--read it back
+    wait for usrClk_period*10;
+    wait for 1600 ns;
+	
+		rxDataValid <= '1';
+		rxDataLast <= '0';
+		rxData <= WORD_HEADER_C;  
+		
+		
+      wait until rxDataReady = '1';
+		wait for usrClk_period;
+
+		rxData <= WORD_PACKET_SIZE_C;
+
+		wait for usrClk_period;
+
+		rxData <= WORD_COMMAND_C;
+		wait for usrClk_period;
+
+		rxData <= wordDC_01;     --wordDC_01;          --wordScrodRevC;
+		
+		wait for usrClk_period;
+		
+		rxData <= WORD_COMMAND_ID_C;
+		wait for usrClk_period;
+		--WORD_PING_C | WORD_WRITE_C | WORD_READ_C depending upon type of command
+		rxData <= WORD_READ_C;  --WORD_PING_C
+--- only for Reg Wr/Rd command--	
+-- first 4 MSBs are Reg Value, last 4 [LSBs] are Reg Addr
+-- For Reg Read command, Reg Value [4 MSBs] = 0000 by default, give address in last 4.
+      wait for usrClk_period;
+      rxData <= x"0000000A";         
+-----------------------------		
+		wait for usrClk_period;
+
+	-- Command Checksum: for ping x"70696e79" -- for write (Reg 2 value 1: 00010002)=>x"726A7479"	
+	-- for Read (Reg 2: 00000002) => x"72656178"
+		rxData <= x"72656180";        
+		txDataReady <= '1';
+
+        -- rxDataValid <= '0';
+		
+
+		wait for usrClk_period;
+
+		-- rxData <= PACKET_CHECKSUM;
         wait for usrClk_period;
         rxDataLast <= '1';
         wait for usrClk_period;
         rxDataLast <= '0';
         rxDataValid <= '0';
+        -- txDataReady <= '0';
       wait for usrClk_period*10;
+    --   txDataReady <= '0';
+      wait for usrClk_period*10;
+      wait until txdatalast='1';
+      txDataReady <= '0';
       wait;
 
 

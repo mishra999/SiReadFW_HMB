@@ -91,7 +91,10 @@ NET "TX_DC_N<0>" LOC = V15;
 # NET "RX_DC_N<0>" LOC = AB19 | IOSTANDARD = LVDS_25 | DIFF_TERM = "FALSE";
 
 NET "RX_DC_P<0>" LOC = AA19;
-NET "RX_DC_N<0>" LOC = AB19;
+NET "RX_DC_N<0>" LOC = AB19; #used now!!
+
+# NET "RX_DC_P<0>" LOC = Y11;
+# NET "RX_DC_N<0>" LOC = AA11;
 
 
 	#SCROD mRICH

@@ -88,6 +88,7 @@ DC_resp : Process(	DATA_CLK) --DC_sel,evnt_trig
 begin
 	IF rising_edge(DATA_CLK) THEN
 		RESP_VALID <= dc_dataValid; 
+		-- DC_RESPONSE  <= (others => '0');
 		if rd_req(0)= '1' then
 			DC_RESPONSE <= dc_data(0);
 		end if;
