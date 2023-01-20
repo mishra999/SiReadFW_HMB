@@ -7,8 +7,8 @@
 -- Module Name:   C:/Users/Kevin/Desktop/HMB/EIC-Beamtest-FW/SCROD_A5_RJ45/SCROD_Rev1/DC_Comm_QBLinkTB.vhd
 -- Project Name:  HMB_SCROD
 -- Target Device:  
--- Tool versions:  
--- Description:    
+-- Tool versions:   
+-- Description:      
 -- 
 -- VHDL Test Bench Created by ISE for module: DC_Comm
 --  
@@ -41,7 +41,7 @@ use ieee.std_logic_unsigned.all;
 --USE ieee.numeric_std.ALL;
  
 ENTITY DC_Comm_QBLinkTB IS  
-END DC_Comm_QBLinkTB; 
+END DC_Comm_QBLinkTB;  
  
 ARCHITECTURE behavior OF DC_Comm_QBLinkTB IS 
  
@@ -101,6 +101,7 @@ ARCHITECTURE behavior OF DC_Comm_QBLinkTB IS
    constant WORD_PING_C      : std_logic_vector(31 downto 0) := x"70696E67";
 	constant WORD_READ_C      : std_logic_vector(31 downto 0) := x"72656164";
    constant WORD_WRITE_C     : std_logic_vector(31 downto 0) := x"72697465";
+   constant WORD_WRITE_DAC	: std_logic_vector(31 downto 0) := x"72697445"; 
    constant WORD_ACK_C       : std_logic_vector(31 downto 0) := x"6F6B6179";
    constant WORD_ERR_C       : std_logic_vector(31 downto 0) := x"7768613f";
 	constant ERR_BIT_SIZE_C    : std_logic_vector(31 downto 0) := x"00000001";
@@ -124,6 +125,7 @@ ARCHITECTURE behavior OF DC_Comm_QBLinkTB IS
 	-- For DC01 ping : x"4543226D"   --For DC01 Reg 2 write value 1 (Wr_reg = 00010002): x"49452e6D"
 	constant PACKET_CHECKSUM	: std_logic_vector(31 downto 0) := x"4543226D";    
 	constant wordScrodRevC	: std_logic_vector(31 downto 0) := x"0000A500";
+    
    --Inputs
    signal usrClk : std_logic := '0';
    signal dataClk : std_logic := '0';
@@ -151,11 +153,11 @@ ARCHITECTURE behavior OF DC_Comm_QBLinkTB IS
    signal regAddr1 : std_logic_vector(15 downto 0);
    signal regWrData1 : std_logic_vector(15 downto 0);
    signal regReq1 : std_logic;
-   signal regOp1 : std_logic;
+   signal regOp1 : std_logic_vector (1 downto 0);
 	signal ldqblink : std_logic;
    signal cmd_int_state : std_logic_vector(4 downto 0);
 
-
+   signal targetx_reg : std_logic :='0';
 	-- signal CtrlRegister : GPR := (others => (others => '0'));
    -- Clock period definitions
    constant usrClk_period : time := 8 ns;
@@ -265,27 +267,55 @@ BEGIN
     -- end process;
 
 
+    -- seqnn : process (DATA_CLK) is
+    -- begin
+    --     if (rising_edge(DATA_CLK)) then
+    --         RES_VALIDb(0) <= '0';
+    --         DC_RESPONSEb  <= (others => '0');
+    --         if QB_RST1 = "1" then
+    --             DC_RESPONSEb  <= (others => '0');
+            
+    --         elsif regReq1 = '1' then
+    --             if regOp1 = '0' then
+    --                 DC_RESPONSEb <= ZERO & CtrlRegister(to_integer(unsigned(regAddr1)));
+    --                 RES_VALIDb(0) <= '1';
+    --             elsif regOp1 = '1' then
+    --                 CtrlRegister(to_integer(unsigned(regAddr1))) <= regWrData1; 
+    --                 DC_RESPONSEb <= ZERO & regAddr1;
+    --                 RES_VALIDb(0) <= '1';                
+    --             end if;
+    --         end if;
+    --     end if;
+    -- end process; 
+
     seqnn : process (DATA_CLK) is
     begin
         if (rising_edge(DATA_CLK)) then
             RES_VALIDb(0) <= '0';
             DC_RESPONSEb  <= (others => '0');
+            targetx_reg <= '0';
+            
             if QB_RST1 = "1" then
                 DC_RESPONSEb  <= (others => '0');
+                -- regAddr  <= (others => '0');
+                -- regWrData  <= (others => '0');
             
             elsif regReq1 = '1' then
-                if regOp1 = '0' then
-                    DC_RESPONSEb <= ZERO & CtrlRegister(to_integer(unsigned(regAddr1)));
+                if regOp1 = "00" then
+                    DC_RESPONSEb <=  ZERO & CtrlRegister(to_integer(unsigned(regAddr1)));
                     RES_VALIDb(0) <= '1';
-                elsif regOp1 = '1' then
+                elsif regOp1 = "01" then
                     CtrlRegister(to_integer(unsigned(regAddr1))) <= regWrData1; 
-                    DC_RESPONSEb <= ZERO & regAddr1;
-                    RES_VALIDb(0) <= '1';                
+                    DC_RESPONSEb <=  ZERO & regAddr1;
+                    RES_VALIDb(0) <= '1';  
+                elsif regOp1 = "10" then
+                    DC_RESPONSEb <=  ZERO & regAddr1;
+                    RES_VALIDb(0) <= '1';   
+                    targetx_reg <= '1';            
                 end if;
             end if;
         end if;
-    end process; 
-
+    end process;
 
    -- Stimulus process
    stim_proc: process
@@ -378,18 +408,18 @@ BEGIN
 		rxData <= WORD_COMMAND_ID_C;
 		wait for usrClk_period;
 		--WORD_PING_C | WORD_WRITE_C | WORD_READ_C depending upon type of command
-		rxData <= WORD_WRITE_C;  --WORD_PING_C
+		rxData <= WORD_WRITE_DAC;  --WORD_WRITE_C;  --WORD_PING_C
 --- only for Reg Wr/Rd command--	
 -- first 4 MSBs are Reg Value, last 4 [LSBs] are Reg Addr
 -- For Reg Read command, Reg Value [4 MSBs] = 0000 by default, give address in last 4.
       wait for usrClk_period;
-      rxData <= x"0006000A";         
+      rxData <= x"0006000A";  -- x"0006000A";         
 -----------------------------		
-		wait for usrClk_period;
-
+	  wait for usrClk_period;
+ 
 	-- Command Checksum: for ping x"70696e79" -- for write (Reg 2 value 1: 00010002)=>x"726A7479"	
 	-- for Read (Reg 2: 00000002) => x"72656178"
-		rxData <= x"726f7481"; 
+		rxData <= x"726f7461";  --x"726f7481";  x"726f7461";
         -- rxDataLast <= '1';       
 		txDataReady <= '1';
 

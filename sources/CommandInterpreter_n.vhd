@@ -149,6 +149,7 @@ architecture rtl of CommandInterpreter is
     constant WORD_PING_C      : slv(31 downto 0) := x"70696E67";
     constant WORD_READ_C      : slv(31 downto 0) := x"72656164";
     constant WORD_WRITE_C     : slv(31 downto 0) := x"72697465";
+    constant WORD_WRITE_DAC     : slv(31 downto 0) := x"72697445";
     constant WORD_ACK_C       : slv(31 downto 0) := x"6F6B6179";
     -- constant WORD_ERR_C       : slv(31 downto 0) := x"7768613f";
 
@@ -338,7 +339,7 @@ begin
                         -- Move on for recognized commands
                     elsif rxData = WORD_PING_C then
                         v.state := COMMAND_CHECKSUM_S; --Mudit
-                    elsif rxData = WORD_READ_C or rxData = WORD_WRITE_C then
+                    elsif rxData = WORD_READ_C or rxData = WORD_WRITE_C or rxData = WORD_WRITE_DAC then --added by me,  or rxData = WORD_WRITE_DAC
                         v.state := COMMAND_DATA_S;
                         -- Unrecognized command, dump
                     else
@@ -381,7 +382,7 @@ begin
                         -- Command accepted, move to execute state
                     elsif r.commandType = WORD_PING_C then
                         v.state := PING_S; --Mudit
-                    elsif r.commandType = WORD_WRITE_C then
+                    elsif r.commandType = WORD_WRITE_C or r.commandType = WORD_WRITE_DAC then --by me,  or r.commandType = WORD_WRITE_DAC
                         v.state := WRITE_S;
                     elsif r.commandType = WORD_READ_C then
                         v.state := READ_S;
@@ -575,7 +576,7 @@ begin
                         when 2 => v.txData := WORD_ACK_C;
                         when 3 => v.txData := r.deviceID;
                         when 4 => v.txData := x"00" & r.commandId;
-                        when 5 => v.txData := WORD_WRITE_C;
+                        when 5 => v.txData := r.commandType; --WORD_WRITE_C, r.commandType; earlier, by me
                         when 6 => v.txData := r.regWrData & r.regAddr; --for all cases, just repeat what you wrote.
                         when 7 => v.txData     := v.checksum;
                         v.txDataLast := '1';
