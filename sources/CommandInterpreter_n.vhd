@@ -25,8 +25,12 @@ entity CommandInterpreter is
         REG_ADDR_BITS_G : integer := 16;
         REG_DATA_BITS_G : integer := 16;
         TIMEOUT_G       : integer := 125000;
+        TIMEOUT_G1       : integer := 536870912;
         GATE_DELAY_G    : time := 1 ns;
-		num_DC          : integer := 0 -- 3
+		num_DC          : integer := 0; -- 3
+        packets         : integer := 8;
+        data_in_packet        : integer := 8;
+        chls       : integer := 1
     );
     port (
         -- User clock and reset
@@ -70,7 +74,7 @@ architecture rtl of CommandInterpreter is
 
     type StateType     is (IDLE_S,PACKET_SIZE_S,PACKET_TYPE_S, PING_S,PING_RESPONSE_S,
                            COMMAND_TARGET_S,COMMAND_ID_S,COMMAND_TYPE_S,
-                           COMMAND_DATA_S,COMMAND_CHECKSUM_S,READ_S,WRITE_S,
+                           COMMAND_DATA_S,COMMAND_CHECKSUM_S,READ_S, READ_DATA, WRITE_S,
                            READ_RESPONSE_S,WRITE_RESPONSE_S,PACKET_CHECKSUM_S, SENDTRIG_S); 
                            
     -- , PING_S,PING_RESPONSE_S, ERR_RESPONSE_S, CHECK_MORE_S,DUMP_S
@@ -98,6 +102,9 @@ architecture rtl of CommandInterpreter is
         noResponse  : sl;
         -- errFlags    : slv(31 downto 0); --Mudit
         timeoutCnt  : slv(31 downto 0);
+        timeoutCnt1  : slv(31 downto 0); --to count wait between two data samples
+        dataCount  : integer  range 0 to 21; --Mudit
+        packetCount : integer  range 0 to 9; --Mudit
     end record RegType;
 
 
@@ -122,7 +129,10 @@ architecture rtl of CommandInterpreter is
         commandId   => (others => '0'),
         noResponse  => '0',
         -- errFlags    => (others => '0'), --Mudit
-        timeoutCnt  => (others => '0')
+        timeoutCnt  => (others => '0'),
+        timeoutCnt1  => (others => '0'),
+        dataCount  => 0,
+        packetCount  => 0
     );
 
     signal r   : RegType := REG_INIT_C;
@@ -130,10 +140,13 @@ architecture rtl of CommandInterpreter is
     signal rin : RegType;
 	-- signal tin : RegType;
 	signal loadQB : sl := '0';
+    signal data_flag : sl := '0';
 	signal QB_loadReg : Word32Array(2 downto 0);
 	signal DC_cmdRespReq : slv(num_DC downto 0);
 	signal start_load : sl := '0';
     signal start_load1 : sl := '0';
+    signal DC_RESP_VALID_data : slv(num_DC downto 0);
+    signal DC_RESP_data		: slv(31 downto 0);
     -- ISE attributes to keep signals for debugging
     -- attribute keep : string;
     -- attribute keep of r : signal is "true";
@@ -151,6 +164,7 @@ architecture rtl of CommandInterpreter is
     constant WORD_WRITE_C     : slv(31 downto 0) := x"72697465";
     constant WORD_WRITE_DAC     : slv(31 downto 0) := x"72697445";
     constant WORD_ACK_C       : slv(31 downto 0) := x"6F6B6179";
+    constant WORD_READ_DATA      : slv(31 downto 0) := x"72652124";
     -- constant WORD_ERR_C       : slv(31 downto 0) := x"7768613f";
 
     -- constant ERR_BIT_SIZE_C    : slv(31 downto 0) := x"00000001";
@@ -167,13 +181,20 @@ architecture rtl of CommandInterpreter is
     signal wordScrodRevC      : slv(31 downto 0)  := (others=> '0');
 
 	signal stateNum : slv(4 downto 0);
-	signal dc_id : integer;
+	signal dc_id : integer := 0;
 	-- added signal to monitor wordsleft 15 oct 2020: Shivang
 --	signal wordsleft_i  : std_logic_vector(31 downto 0) := (others=> '0');
 	signal dc_ack : sl := '0';
 	signal dc_ack1 : sl := '0';
     -- attribute keep : string;
     -- attribute keep of stateNum : signal is "true";
+    signal s_axis_tready : sl := '1';
+    signal tready_fifo : sl :=  '0';
+    signal tdata_fifo : slv(31 downto 0) := (others => '0');
+    signal tvalid_fifo : sl :=  '0';
+    -- signal txData_i : slv(31 downto 0) := (others => '0');
+    -- signal txDataValid_i : sl :=  '0';
+    -- signal txDataReady_i : sl :=  '0';
 
 	attribute mark_debug : string;
     attribute mark_debug of loadQB : signal is "true";
@@ -183,6 +204,11 @@ architecture rtl of CommandInterpreter is
 begin
 	cmd_int_state <= stateNum;
 	ldQBLink <= loadQB;
+    DC_RESP_data <= DC_RESP when data_flag = '1' else (others =>'0');
+    DC_RESP_VALID_data <= DC_RESP_VALID when data_flag = '1' else  "0";
+    -- txData <= txData_i;
+    -- txDataValid <= txDataValid_i;
+    -- txDataReady_i <= txDataReady;
 --	wordsleft_i <= r.wordsLeft;
 	
     stateNum <= "00000" when r.state = IDLE_S else             -- 0 x00
@@ -198,7 +224,8 @@ begin
                 "01010" when r.state = WRITE_S else            -- 10 x0A
                 "01011" when r.state = READ_RESPONSE_S else    -- 11 x0B
                 "01100" when r.state = WRITE_RESPONSE_S else   -- 12 x0C
-                "01101" when r.state = PING_RESPONSE_S else    -- 13 x0D
+                "01101" when r.state = PING_RESPONSE_S else
+                "01110" when r.state = READ_DATA else    -- 13 x0D
                 -- "01110" when r.state = ERR_RESPONSE_S else     -- 14 x0E
                 -- "01111" when r.state = CHECK_MORE_S else       -- 15 x0F
                 -- "10000" when r.state = PACKET_CHECKSUM_S else  -- 16 x10
@@ -208,6 +235,29 @@ begin
 
 
     wordScrodRevC(31 downto 0) <= x"0000A500";
+
+--    data_fifos_generation : for i in 0 to chls-1 generate
+--       data_fifos: entity work.serial_data_window_fifo_w32d1024
+--   PORT MAP (
+--     m_aclk => DATA_CLK,
+--     s_aclk => sys_clk,
+--     s_aresetn => not sync1(0),
+--     s_axis_tvalid => samples_valid,
+--     s_axis_tready => fifo_s_tready(i),
+--     s_axis_tdata => ZERO1 & sample_data(i),
+--     m_axis_tvalid => qblink_tvalid_i(i),
+--     m_axis_tready => qblink_tready_i(i),
+--     m_axis_tdata => qblink_tdata_i(i)
+--   );
+--    end generate;
+    --detect start rising edge, checked if a signal was on for one cycle previously
+    -- process(usrClk, DC_RESP_VALID, DC_RESP_VALID_i)
+    -- begin
+    --     if rising_edge(usrClk) then
+    --         DC_RESP_VALID_i <= DC_RESP_VALID_i(0) & DC_RESP_VALID(0);
+            
+    --     end if;
+    -- end process;
 
     SCRODRegComb : process(r,usrRst,rxData,rxDataValid,rxDataLast,
                            txDataReady,regRdData,regAck,wordScrodRevC,EVNT_FLAG) is
@@ -228,6 +278,7 @@ begin
                 -- v.errFlags := (others => '0'); --Mudit
                 v.checksum := (others => '0');
 				DC_cmdRespReq <= (others => '1'); --default enable listening to DCs
+                data_flag <= '0';
                 if rxDataValid = '1' then
                     rxDataReady <= '1';
                     -- Possible errors:
@@ -339,7 +390,7 @@ begin
                         -- Move on for recognized commands
                     elsif rxData = WORD_PING_C then
                         v.state := COMMAND_CHECKSUM_S; --Mudit
-                    elsif rxData = WORD_READ_C or rxData = WORD_WRITE_C or rxData = WORD_WRITE_DAC then --added by me,  or rxData = WORD_WRITE_DAC
+                    elsif rxData = WORD_READ_C or rxData = WORD_WRITE_C or rxData = WORD_WRITE_DAC or rxData = WORD_READ_DATA then --added by me,  or rxData = WORD_WRITE_DAC
                         v.state := COMMAND_DATA_S;
                         -- Unrecognized command, dump
                     else
@@ -386,11 +437,51 @@ begin
                         v.state := WRITE_S;
                     elsif r.commandType = WORD_READ_C then
                         v.state := READ_S;
+                        data_flag <= '0';
+                    elsif r.commandType = WORD_READ_DATA then
+                        v.state := READ_DATA;
+                        data_flag <= '1';
                         -- Unrecognized command
                     else
                         -- v.errFlags := r.errFlags + ERR_BIT_COMM_TY_C; --Mudit
                         v.state    := IDLE_S; --ERR_RESPONSE_S, Mudit
                     end if;
+                end if;
+            
+            when READ_DATA =>
+                v.timeoutCnt := r.timeoutCnt + 1;
+                -- v.txDataLast := '0';
+                tready_fifo <= '0';
+                if loadQB = '1' then -- if reading DC, listen to QBLink
+                    DC_cmdRespReq(dc_id-1) <= '1';
+                    v.checksum := (others => '0');
+                    if txDataReady = '1' and tvalid_fifo = '1' then
+                        v.timeoutCnt1 := (others => '0');
+                        v.txDataValid := '1';
+                        v.txData := tdata_fifo;
+                        tready_fifo <= '1';
+                        v.dataCount := v.dataCount + 1;
+                        -- v.txDataLast := '1';
+                        if v.dataCount = data_in_packet then
+                            v.txDataLast := '1';
+                            v.dataCount := 0;
+                            if v.packetCount = packets then
+                                v.state := IDLE_S;
+                                v.packetCount := 0;
+                            else v.packetCount := v.packetCount + 1;
+                            end if;
+                        -- else v.state := READ_DATA;
+                        end if;
+                    else v.timeoutCnt1 := r.timeoutCnt1 + 1;
+                    end if;
+
+                    if r.timeoutCnt1 = TIMEOUT_G1 then -- if QBLink does output a word before timeout, send error to PC
+                        -- v.errFlags := r.errFlags + ERR_BIT_TIMEOUT_C; --Mudit
+                        v.state    := IDLE_S; --ERR_RESPONSE_S, Mudit
+                        v.packetCount := 0;
+                        v.dataCount := 0;
+                    end if;
+                    
                 end if;
 
             --commented by Mudit
@@ -840,5 +931,17 @@ begin
             end if;    
         end if;
     end process;
-    
+
+data_fifo_out: entity work.fifo_data_w32_d32
+    PORT MAP (
+           S_ARESETN                 => not usrRst,
+           M_AXIS_TVALID             => tvalid_fifo,
+           M_AXIS_TREADY             => tready_fifo,
+           M_AXIS_TDATA              => tdata_fifo,
+           S_AXIS_TVALID             => DC_RESP_VALID_data(dc_id-1),
+           S_AXIS_TREADY             => s_axis_tready,
+           S_AXIS_TDATA              => DC_RESP_data,
+           M_ACLK                    => usrClk,
+           S_ACLK                    => dataClk);
 end rtl;
+
