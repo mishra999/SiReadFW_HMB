@@ -79,7 +79,7 @@ entity SCRODQB_Top is
 			-- TRIG_OUT_N		  : OUT sl 
 	);
 end SCRODQB_Top; 
- 
+   
 architecture Behavioral of SCRODQB_Top is
 --PC communcation signals---
 	signal ethSync      : sl;

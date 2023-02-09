@@ -2,11 +2,11 @@
 <LicenseInfo
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <ExpirationDate>2023-01-24T23:59:00</ExpirationDate>
-  <Type>Educational</Type>
-  <DateIssued>2022-07-25T08:32:36</DateIssued>
+  <ExpirationDate>2023-08-09T23:59:00</ExpirationDate>
+  <Type>Student</Type>
+  <DateIssued>2023-02-07T07:27:29</DateIssued>
   <SerialNumber>
-    e-966c7020-90d10eb2-b063934d-0040bb7d
+    s-96195030-20e20148-201ef4b1-f5118025
   </SerialNumber>
   <Products>All</Products>
   <Features>All</Features>
@@ -22,10 +22,15 @@
     <Remarks></Remarks>
   </Contact>
   <Locks>
+    <LockInfo>
+      <Condition>CanBe</Condition>
+      <Option>MacAddress</Option>
+      <Value>E0-D0-45-C4-FB-52</Value>
+    </LockInfo>
   </Locks>
 </LicenseInfo>
 --- SIGNATURE ---
-GuXXWesJRdVY7nOzDlBPZ/cp48x7f3Wf4ixqLsbyfbj
-whRjsOmDDTC8YqrVCZbGbr6BM3EtuQ8qH5BdKTyBW1n
-usncdTi5BVe7f8m/UviO9+Rh3sQ82iuCiCjWTXT2xtd
-snnoFuuIfLc8FS+LUedrW9AV7s91r4X4ZvIIpvwUHE=
+ewaxewq1IuWENCZIgqbAClZxxMGrZAF5QNivwsiFKlz
+yO1l2R9al0RPwDw8mLl/8td2A04aGffKprWoDed9IOg
+crxkImRSuGn9NyKXYQg9X+Xv2RBgGroXG3vLdbcevkH
+eICBtJS0B6Z4jr03zEQKzerKvYO31ADTtTaA58sf5Q=
